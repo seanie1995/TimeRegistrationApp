@@ -9,6 +9,7 @@ import Checkmark from "../assets/images/SparaCheck.png"
 import TimePicker from "../components/TimePicker.jsx"
 import ProjectPicker from "../components/ValueListPicker.jsx"
 import ArticlePicker from "../components/ArticleListPicker.jsx"
+import EventCell from "../components/EventCellPopup.jsx"
 
 import { goBack } from 'expo-router/build/global-state/routing.js';
 import axios from 'axios';
@@ -35,7 +36,6 @@ const RegTime = () => {
     const [isProjectPickerOpen, setIsProjectPickerOpen] = useState(false);
     const [isArticlePickerOpen, setArticlePickerOpen] = useState(false);
     const [isStartTime, setIsStartTime] = useState();
-
 
     const ToggleProjectPicker = () => {
         setIsProjectPickerOpen(true);
@@ -214,7 +214,7 @@ const RegTime = () => {
     const FindProjectName = async (projectCode) => {
         const projectList = await AsyncStorage.getItem("projectValueLists");
         const parsedList = projectList ? JSON.parse(projectList) : null;
-        
+
         if (!parsedList || !Array.isArray(parsedList.valueLists)) return null;
 
         const foundItem = parsedList.valueLists.find(item => item.value === projectCode)
@@ -252,7 +252,7 @@ const RegTime = () => {
 
         if (recordId !== null && chosenDate === todaysDateUS) {
             searchPost = currentDayPosts.find(post => post.fieldData.recordId === recordId);
-            
+
             if (searchPost) {
                 setPostToModify(searchPost);
             }
@@ -283,7 +283,7 @@ const RegTime = () => {
             });
         }
 
-       
+
 
     }, [])
 
@@ -383,6 +383,7 @@ const RegTime = () => {
     const handlePatch = async () => {
         if (!recordId) {
             console.log('Record ID is undefined or invalid');
+            alert("Record ID is undefined. Try to refresh project list")
             return;
         }
 
@@ -470,8 +471,6 @@ const RegTime = () => {
         });
     }, [navigation]);
 
-
-
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -506,7 +505,6 @@ const RegTime = () => {
                             onSelect={handleArticleSelect}
 
                         />
-
                     </Modal>
 
                     <ScrollView
@@ -538,8 +536,8 @@ const RegTime = () => {
 
                                 </View>
                                 <Text style={styles.inputResult}>
-                                        {!projectNameDisplay ? "" : projectNameDisplay}
-                                    </Text>
+                                    {!projectNameDisplay ? "" : projectNameDisplay}
+                                </Text>
                             </View>
                             <View style={styles.inputContainer}>
                                 <View style={styles.inputChild}>
@@ -616,6 +614,7 @@ const RegTime = () => {
                                     <TextInput
                                         style={styles.commentTextInput}
                                         multiline={true}
+                                        placeholderTextColor="gray"
                                         value={recordId ? postToModify?.fieldData?.common_comment_customer || "" : formData.fieldData.common_comment_customer}
                                         onChangeText={(text) => handleChange('common_comment_customer', text)}></TextInput>
                                 </View>
@@ -623,6 +622,7 @@ const RegTime = () => {
                                     <Text style={styles.commentHeader}>Intern kommentar</Text>
                                     <TextInput style={styles.commentTextInput}
                                         multiline={true}
+                                        placeholderTextColor="gray"
                                         value={recordId ? postToModify?.fieldData?.common_comment_internal || "" : formData.fieldData.common_comment_internal}
                                         onChangeText={(text) => handleChange('common_comment_internal', text)}></TextInput>
                                 </View>

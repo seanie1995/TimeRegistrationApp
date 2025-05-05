@@ -19,6 +19,7 @@ import TimePicker from "../components/TimePicker.jsx"
 import ArticleList from "../components/ArticleListPicker.jsx"
 import ValueList from "../components/ValueListPicker.jsx"
 import CalendarTest from "../components/CalendarBig.jsx"
+import EventCellPopup from "../components/EventCellPopup.jsx"
 
 import addCircle from "../assets/images/add-circle.png";
 import { useNavigation } from 'expo-router';
@@ -68,15 +69,15 @@ function AuthConsumer() {
     loadToken();
   }, [])
 
-  const ToRegPage = () => {
-    navigation.navigate("Regga Tid")
-  }
+  // const ToRegPage = () => {
+  //   navigation.navigate("Regga Tid")
+  // }
 
   return (
     <ThemeProvider value={DefaultTheme}>
       {!token ? (
         <LoginPage />
-
+        // <EventCellPopup/>
       ) : (
         <Stack.Navigator>
           <Stack.Group screenOptions={{ headerStyle: { backgroundColor: '#FFFFFF' }, headerBackTitle: "Tillbaka" }}>
@@ -84,19 +85,21 @@ function AuthConsumer() {
             <Stack.Screen name="Regga Tid" component={RegTime} options={{ title: "" }} />
             <Stack.Screen name="Tider"
               component={CalendarTime}
-              options={{
-                headerRight: () => (<TouchableOpacity onPress={ToRegPage}><Image style={styles.addCircleImg} source={addCircle} /></TouchableOpacity>)
-              }} />
+              // options={{
+              //   headerRight: () => (<TouchableOpacity onPress={ToRegPage}><Image style={styles.addCircleImg} source={addCircle} /></TouchableOpacity>)
+              // }} 
+              />
           </Stack.Group>
           <Stack.Group >
             <Stack.Screen name="TimePicker" component={TimePicker} />
             <Stack.Screen name="ValueList" component={ValueList} />
             <Stack.Screen name="CalendarTest" component={CalendarTest} />
             <Stack.Screen name="ArticleList" component={ArticleList} />
+            <Stack.Screen name="EventCellPopup" component={EventCellPopup}/>
           </Stack.Group>
         </Stack.Navigator>
       )}
-      {/* <StatusBar style="dark" /> */}
+      <StatusBar style="dark" />
     </ThemeProvider>
   )
 }

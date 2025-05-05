@@ -1,14 +1,16 @@
-import { React, useState, useEffect } from 'react'
+import { React, useState, useEffect, useContext } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Calendar } from 'react-native-big-calendar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { AuthContext } from "../app/Context.jsx";
 
-const CalendarBig = ({ chosenEvents, isToday }) => {
+const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
+
 
     const [events, setEvents] = useState([]);
-
     const [chosenDay, setChosenDay] = useState();
+    const [recordId, setRecordId] = useState();
 
     const FindProjectName = async (projectCode) => {
         const projectList = await AsyncStorage.getItem("projectValueLists");
@@ -54,16 +56,15 @@ const CalendarBig = ({ chosenEvents, isToday }) => {
                 const startDate = timeConverter(item.fieldData.time_time_start, isToday);
                 const endDate = timeConverter(item.fieldData.time_time_end, isToday);
                 const projectName = await FindProjectName(item?.fieldData?.["!Project"]);
-
+                const chosenRecordId = item?.fieldData.recordId
                 const isCommentNull = item?.fieldData.common_comment_customer === ""
-                
-                
-                
+                const chosenItem = item 
                 return {
                     title: `${projectName} `,
                     start: startDate,
                     end: endDate,
-                    isCommentNull: isCommentNull
+                    isCommentNull: isCommentNull,
+                    chosenEvent: chosenItem
                 };
             }));
 
@@ -74,7 +75,7 @@ const CalendarBig = ({ chosenEvents, isToday }) => {
     }, [chosenEvents]);
 
     const showEventDetails = (event) => {
-        alert(event.title)
+        alert(event.recordId)
     }
 
     return (
@@ -92,8 +93,8 @@ const CalendarBig = ({ chosenEvents, isToday }) => {
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
-                onPressEvent={showEventDetails}
-                // eventCellStyle={styles.eventCell}
+                
+                onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
                       backgroundColor: event.isCommentNull ? "#C0C0C0" : "#3B71CA", // grey if no comment
@@ -117,26 +118,13 @@ const styles = StyleSheet.create({
         flex: 1,
         width: 400,
         height: 800,
-        margin: "auto",
-        
-
+        margin: "auto"
     },
     title: {
         margin: "auto",
 
         padding: 10
-    },
-    // eventCell: {
-    //     backgroundColor: "#3B71CA",
-    //     borderLeftWidth: 5,
-    //     borderColor: "#0b52c2",
-    //     borderTopWidth: 1,
-    //     borderBottomWidth: 1,
-    //     borderRadius: 6,
-    //     paddingHorizontal: 6,
-    //     paddingVertical: 4
-
-    // }
+    }
 })
 
 export default CalendarBig

@@ -20,6 +20,8 @@ export const AuthProvider = ({ children }) => {
     const [yesterdayPosts, setYesterdayPosts] = useState([]);
     const [chosenDayPosts, setChosenDayPosts] = useState([]);
 
+
+
     const [selectedStartTime, setSelectedStartTime] = useState();
     const [selectedEndTime, setSelectedEndTime] = useState()
     const [isStartTime, setIsStartTime] = useState(false);

@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, FlatList, Platform , TouchableOpacity, Image} from 'react-native'
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, FlatList, Platform, TouchableOpacity, Image, Modal } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { AuthContext } from "./Context";
 import axios from 'axios';
 import ToDoCard from "../components/ToDoCard.jsx"
 import Calendar from "../components/CalendarBig.jsx"
+import EventCell from "../components/EventCellPopup.jsx"
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar';
 import CalendarBig from '../components/CalendarBig.jsx';
@@ -15,12 +16,16 @@ const CalendarPage = () => {
     const route = useRoute();
     const navigation = useNavigation();
     const { dateTitle, chosenDate } = route.params || { dateTitle, chosenDate: "Unknown" }
+    const [isEventCellPopupOpen, setEventCellPopupOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState(null)
 
     useEffect(() => {
         navigation.setOptions({
             title: dateTitle
         })
     }, [navigation, dateTitle])
+
+
 
     // FETCHES DATA
     useFocusEffect(
@@ -57,20 +62,11 @@ const CalendarPage = () => {
             )
         });
     }, [navigation, dateTitle]);
-    
+
 
     const fetchData = async () => {
 
-        // const requestBody = {
-        //     "query": [
-        //         {
-        //             "time_employee_id": "SOS",
-        //             "time_date": `${chosenDate}`
-        //         }
-        //     ]
-        // };
-
-         const requestBody = {
+        const requestBody = {
             "query": [
                 {
                     "time_employee_id": userName,
@@ -80,8 +76,8 @@ const CalendarPage = () => {
         };
 
         const API_URL_ANDROID = "http://10.0.2.2:80/fetchTimeRecords";
-        // const API_URL_IOS = "http://10.0.200.102/fetchTimeRecords";
-        const API_URL_IOS = "http://localhost/fetchTimeRecords";
+        const API_URL_IOS = "http://10.0.200.102/fetchTimeRecords";
+        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
 
         let URL = ""
 
@@ -128,9 +124,25 @@ const CalendarPage = () => {
         setIsRefreshing(false);  // Stop the refresh indicator
     };
 
+    const OnOpenEventCell = (event) => {
+        setSelectedProject(event)
+        setEventCellPopupOpen(true)
+        // alert(event.fieldData.recordId)
+    }
+
+
 
     return (
         <View style={styles.container}>
+
+            <Modal visible={isEventCellPopupOpen} transparent={true} animationType='slide' onRequestClose={() => setEventCellPopupOpen(false)}>
+                <EventCell
+                    onClose={() => setEventCellPopupOpen(false)}
+                    visible={isEventCellPopupOpen}
+                    project={selectedProject}
+                    
+                />
+            </Modal>
             <View style={styles.cardListContainer}>
 
                 {chosenDate === todaysDateUS ? (<ScrollView
@@ -163,11 +175,15 @@ const CalendarPage = () => {
                     <Calendar
                         chosenEvents={currentDayPosts}
                         isToday={true}
+                        // openEventCell={() => setEventCellPopupOpen(true)}
+                        openEventCell={OnOpenEventCell}
                     />
                 ) : chosenDate !== todaysDateUS ? (
                     <Calendar
                         chosenEvents={yesterdayPosts}
                         isToday={false}
+                        // openEventCell={() => setEventCellPopupOpen(true)}
+                        openEventCell={OnOpenEventCell}
                     />
                 ) : (
                     <Text>No Events Available</Text> // Fallback if chosenDate is not today or yesterday
@@ -190,7 +206,7 @@ const styles = StyleSheet.create({
     },
     calendarContainer: {
         flex: 1,
-    },  
+    },
     bokadTid: {
         paddingTop: 10,
         fontWeight: 700
