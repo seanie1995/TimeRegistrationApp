@@ -15,25 +15,31 @@ const LoginPage = ({ navigation }) => {
   const handleChange = (name, value) => {
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value.toUpperCase()
     });
   };
 
   const handleLogin = async () => {
-    await login(formData.username, formData.password);
-    navigation.navigate('')
+    if (formData.username === "") {
+      alert("Inmatningsfältet kan inte vara tomt");
+    } else {
+      await login(formData.username, formData.password);
+      navigation.navigate('')
+    }
   }
 
   return (
     <SafeAreaProvider >
       <SafeAreaView style={styles.container}>
         <Image style={styles.logo} source={require('../assets/images/TidMojjenLogo.png')} />
-        <Text>Användarnamn</Text>
+        <Text>Dina Initialer</Text>
         <TextInput
           style={styles.input}
-          placeholder='Användarnamn'
+          placeholder='Dina Initialer'
           value={formData.username}
           onChangeText={(text) => handleChange('username', text)}
+          textAlign='center'
+          placeholderTextColor="gray"
         />
         {/* <Text>Lösenord</Text>
         <TextInput
