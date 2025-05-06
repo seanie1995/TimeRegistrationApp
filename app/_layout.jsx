@@ -18,8 +18,9 @@ import CalendarTime from "./CalendarPage.jsx"
 import TimePicker from "../components/TimePicker.jsx"
 import ArticleList from "../components/ArticleListPicker.jsx"
 import ValueList from "../components/ValueListPicker.jsx"
-import CalendarTest from "../components/CalendarBig.jsx"
+import Calendar from "../components/CalendarBig.jsx"
 import EventCellPopup from "../components/EventCellPopup.jsx"
+import ToDoCalendar from "../components/CalenderTodo.jsx"
 
 import addCircle from "../assets/images/add-circle.png";
 import { useNavigation } from 'expo-router';
@@ -93,9 +94,10 @@ function AuthConsumer() {
           <Stack.Group >
             <Stack.Screen name="TimePicker" component={TimePicker} />
             <Stack.Screen name="ValueList" component={ValueList} />
-            <Stack.Screen name="CalendarTest" component={CalendarTest} />
+            <Stack.Screen name="Calendar" component={Calendar} />
             <Stack.Screen name="ArticleList" component={ArticleList} />
             <Stack.Screen name="EventCellPopup" component={EventCellPopup}/>
+            <Stack.Screen name="TodoCalendar" component={ToDoCalendar}/>
           </Stack.Group>
         </Stack.Navigator>
       )}
