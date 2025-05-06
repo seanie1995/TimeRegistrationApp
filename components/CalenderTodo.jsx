@@ -1,26 +1,15 @@
 import { React, useState, useEffect, useContext } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Calendar } from 'react-native-big-calendar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AuthContext } from "../app/Context.jsx";
 
-const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
+const CalenderTodo = (todoList, isToday, openEventCell) => {
 
     const [events, setEvents] = useState([]);
     const [chosenDay, setChosenDay] = useState();
-
-    const FindProjectName = async (projectCode) => {
-        const projectList = await AsyncStorage.getItem("projectValueLists");
-        const parsedList = projectList ? JSON.parse(projectList) : null;
-
-        if (!parsedList || !Array.isArray(parsedList.valueLists)) return null;
-
-        const foundItem = parsedList.valueLists.find(item => item.value === projectCode)
-        const projectName = foundItem.displayValue
-
-        return projectName;
-    }
 
     useEffect(() => {
         if (isToday) {
@@ -32,6 +21,10 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
             setChosenDay(yesterday)
         }
     }, [isToday])
+
+    useEffect(() => {
+        console.log(todoList)
+    })
 
     const timeConverter = (timeString, isToday) => {
         let date;
@@ -50,18 +43,16 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
     useEffect(() => {
 
         const formatEvents = async () => {
-            const formattedEvents = await Promise.all(chosenEvents.map(async item => {
-                const startDate = timeConverter(item.fieldData.time_time_start, isToday);
-                const endDate = timeConverter(item.fieldData.time_time_end, isToday);
-                const projectName = await FindProjectName(item?.fieldData?.["!Project"]);
+            const formattedEvents = await Promise.all(todoList.map(async item => {
+                const startDate = timeConverter(item.fieldData.todo_start, isToday);
+                const endDate = timeConverter(item.fieldData.todo_stop, isToday);
+                const projectName = await FindProjectName(item?.fieldData?.todo_head);
                 const chosenRecordId = item?.fieldData.recordId
-                const isCommentNull = item?.fieldData.common_comment_customer === ""
                 const chosenItem = item
                 return {
                     title: `${projectName} `,
                     start: startDate,
                     end: endDate,
-                    isCommentNull: isCommentNull,
                     chosenEvent: chosenItem
                 };
             }));
@@ -70,14 +61,8 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
         }
         formatEvents();
 
-    }, [chosenEvents, , isToday]);
-
-    const showEventDetails = (event) => {
-        alert(event.recordId)
-    }
-
+    }, [todoList, isToday]);
     return (
-
         <GestureHandlerRootView style={styles.mainContainer}>
 
             <Calendar events={events}
@@ -91,7 +76,6 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
-
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
@@ -107,7 +91,6 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 }}
             />
         </GestureHandlerRootView>
-
     )
 }
 
@@ -125,4 +108,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default CalendarBig
+export default CalenderTodo

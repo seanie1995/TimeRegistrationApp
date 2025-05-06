@@ -18,6 +18,10 @@ export const AuthProvider = ({ children }) => {
 
     const [currentDayPosts, setCurrentDayPosts] = useState([]);
     const [yesterdayPosts, setYesterdayPosts] = useState([]);
+
+    const [currentDayTodos, setCurrentDayTodos] = useState([]);
+    const [yesterdayTodos, setYesterdayTodos] = useState([]);
+
     const [chosenDayPosts, setChosenDayPosts] = useState([]);
 
 
@@ -306,7 +310,8 @@ export const AuthProvider = ({ children }) => {
                 logout, login, token, userName, todaysDateUS, yesterdaysDateUS, todaysDateNormal,
                 yesterdaysDateNormal, setChosenDate, chosenDate, currentDayPosts, 
                 setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, timeSort, selectedStartTime, setSelectedStartTime, selectedEndTime, setSelectedEndTime,
-                timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal
+                timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal, 
+                currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos
             }}>
             {children}
         </AuthContext.Provider>

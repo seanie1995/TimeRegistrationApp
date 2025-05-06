@@ -5,13 +5,14 @@ import { AuthContext } from "./Context";
 import axios from 'axios';
 import ToDoCard from "../components/ToDoCard.jsx"
 import Calendar from "../components/CalendarBig.jsx"
+import ToDoCalendar from "../components/CalenderTodo.jsx"
 import EventCell from "../components/EventCellPopup.jsx"
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native'
-import { StatusBar } from 'expo-status-bar';
-import CalendarBig from '../components/CalendarBig.jsx';
+
 const CalendarPage = () => {
 
-    const { userName, token, currentDayPosts, setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, todaysDateNormal, yesterdaysDateNormal } = useContext(AuthContext);
+    const { userName, token, currentDayPosts, setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort,
+        todaysDateNormal, yesterdaysDateNormal, currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos } = useContext(AuthContext);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const route = useRoute();
     const navigation = useNavigation();
@@ -19,13 +20,18 @@ const CalendarPage = () => {
     const [isEventCellPopupOpen, setEventCellPopupOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null)
 
+    const [showToDo, setShowToDo] = useState(true)
+
+    const toggleToDo = () => setShowToDo(true)
+    const toggleReg = () => setShowToDo(false)
+
     useEffect(() => {
         navigation.setOptions({
             title: dateTitle
         })
     }, [navigation, dateTitle])
 
-
+    const mockData = [{"fieldData": {"!ID": 298722, "!common_our_reference": "SOS", "recordId": "511336", "todo_arendenr": "", "todo_date": "05/05/2025", "todo_done": "", "todo_head": "Test Todo", "todo_start": "09:00:00", "todo_stop": "10:00:00", "todo_text": "Test text"}}]
 
     // FETCHES DATA
     useFocusEffect(
@@ -34,6 +40,7 @@ const CalendarPage = () => {
                 if (currentDayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
+                    fetchTodoData();       
                 } else {
                     console.log("Local Data Used. Src: CalendarPage.jsx");
                 }
@@ -41,13 +48,13 @@ const CalendarPage = () => {
                 if (yesterdayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
+                    fetchTodoData();
                 } else {
                     console.log("Local Data Used. Src: CalendarPage.jsx");
                 }
-            }
-        }, [chosenDate, currentDayPosts, yesterdayPosts]) // You can also add dependencies if needed
+            }      
+        }, [chosenDate, currentDayPosts, yesterdayPosts, currentDayTodos, yesterdayTodos]) 
     );
-
 
     useEffect(() => {
         navigation.setOptions({
@@ -117,6 +124,60 @@ const CalendarPage = () => {
         }
     }
 
+    const fetchTodoData = async () => {
+
+        const requestBody = {
+            "query": [
+                {
+                    "!common_our_reference": userName,
+                    "todo_date": `${chosenDate}`
+                }
+            ]
+        };
+
+        const API_URL_ANDROID = "http://10.0.2.2:80/fetchTodo";
+        const API_URL_IOS = "http://10.0.200.102/fetchTodo";
+        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
+
+        let URL = ""
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
+        }
+
+        try {
+            const response = await axios.post(URL, requestBody, { headers: { Authorization: `Bearer ${token}` } });
+            const responseBody = response.data.data;
+
+            const formattedResponse = responseBody.map(item => ({
+                fieldData: {
+                    '!ID': item['!ID'],
+                    todo_date: item.todo_date,
+                    todo_head: item.todo_head,
+                    todo_text: item.todo_text,
+                    todo_start: item.todo_start,
+                    todo_stop: item.todo_stop,
+                    todo_done: item.todo_done,
+                    recordId: item.recordId,
+                    todo_arendenr: item.todo_arendenr,
+                    '!common_our_reference': item['!common_our_reference'],
+                }
+            }));
+
+            if (chosenDate === todaysDateUS) {
+                setCurrentDayTodos(formattedResponse);
+            } else if (chosenDate === yesterdaysDateUS) {
+                setYesterdayTodos(formattedResponse)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+
+
     const onRefresh = async () => {
         setIsRefreshing(true);
         await fetchData();  // Fetch data again
@@ -130,8 +191,6 @@ const CalendarPage = () => {
         // alert(event.fieldData.recordId)
     }
 
-
-
     return (
         <View style={styles.container}>
 
@@ -140,7 +199,7 @@ const CalendarPage = () => {
                     onClose={() => setEventCellPopupOpen(false)}
                     visible={isEventCellPopupOpen}
                     project={selectedProject}
-                    
+
                 />
             </Modal>
             <View style={styles.cardListContainer}>
@@ -171,25 +230,60 @@ const CalendarPage = () => {
                 </ScrollView>)}
             </View>
             <View style={styles.calendarContainer}>
-                {chosenDate === todaysDateUS ? (
-                    <Calendar
-                        chosenEvents={currentDayPosts}
-                        isToday={true}
-                        // openEventCell={() => setEventCellPopupOpen(true)}
-                        openEventCell={OnOpenEventCell}
-                    />
-                ) : chosenDate !== todaysDateUS ? (
-                    <Calendar
-                        chosenEvents={yesterdayPosts}
-                        isToday={false}
-                        // openEventCell={() => setEventCellPopupOpen(true)}
-                        openEventCell={OnOpenEventCell}
-                    />
-                ) : (
-                    <Text>No Events Available</Text> // Fallback if chosenDate is not today or yesterday
-                )}
-            </View>
+                <View style={styles.timelineTabContainer}>
+                    <TouchableOpacity
+                        style={{ borderBottomColor: "black", borderBottomWidth: 2, padding: 5, width: 160, opacity: showToDo ? 1 : 0.4 }}
+                        onPress={toggleToDo}>
+                        <Text style={{ textAlign: "center" }}>Bokad Tid</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ borderBottomColor: "black", borderBottomWidth: 2, padding: 5, width: 160, opacity: !showToDo ? 1 : 0.4 }} onPress={toggleReg}>
+                        <Text style={{ textAlign: "center" }}>Registrerade Tider</Text>
+                    </TouchableOpacity>
+                </View>
+                {!showToDo ? (
+                    <View>
+                        {chosenDate === todaysDateUS ? (
+                            <Calendar
+                                chosenEvents={currentDayPosts}
+                                isToday={true}
+                                isTodo={false}
+                                // openEventCell={() => setEventCellPopupOpen(true)}
+                                openEventCell={OnOpenEventCell}
+                            />
+                        ) : chosenDate !== todaysDateUS ? (
+                            <Calendar
+                                chosenEvents={yesterdayPosts}
+                                isToday={false}
+                                isTodo={false}
+                                // openEventCell={() => setEventCellPopupOpen(true)}
+                                openEventCell={OnOpenEventCell}
+                            />
+                        ) : (
+                            <Text>No Events Available</Text>
+                        )}
+                    </View>
+                ) :
+                    <View>
+                        {chosenDate === todaysDateUS ? (
+                            <ToDoCalendar
+                                chosenEvents={currentDayTodos}
+                                isToday={true}
+                                openEventCell={OnOpenEventCell}
+                            />
+                        ) : chosenDate !== todaysDateUS ? (
+                            <ToDoCalendar
+                                chosenEvents={yesterdayTodos} 
+                                isToday={false}
+                                openEventCell={OnOpenEventCell}
+                            />
+                        ) : (
+                            <Text>No Events Available</Text>
+                        )}
+                    </View>
+                }
 
+
+            </View>
 
         </View>
     )
@@ -211,7 +305,10 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         fontWeight: 700
     },
-
+    timelineTabContainer: {
+        flexDirection: "row",
+        margin: "auto",
+    },
 
 })
 
