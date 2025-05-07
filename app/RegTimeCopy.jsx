@@ -44,7 +44,17 @@ const RegTime = () => {
         setArticlePickerOpen(true);
     }
 
+    useEffect(() => {
+        console.log(postToModify)
+    })
+
     const [isTimePickerOpen, setTimePickerIsOpen] = useState(false);
+
+    useEffect(() => {
+        if (postToModify && postToModify.fieldData.time_chargeable === 1) {
+            setIsDebiterat(true);
+        }
+    }, [postToModify])
 
     // MODAL ON/OFF TOGGLES
 
@@ -162,7 +172,10 @@ const RegTime = () => {
             time_source: "App",
             time_time_end: "",
             time_time_start: "",
-            projectName: ""
+            projectName: "",
+            "!todo": "",
+            common_item_price: "",
+            time_chargeable: ""
 
         }
     });
@@ -248,7 +261,7 @@ const RegTime = () => {
         if (!recordId) return;
 
         let searchPost = null;
-        let foundProjectName = null;
+
 
         if (recordId !== null && chosenDate === todaysDateUS) {
             searchPost = currentDayPosts.find(post => post.fieldData.recordId === recordId);
@@ -278,7 +291,10 @@ const RegTime = () => {
                     time_source: "App",
                     time_time_end: "",
                     time_time_start: "",
-                    projectName: ""
+                    projectName: "",
+                    "!todo": "",
+                    common_item_price: "",
+                    time_chargeable: ""
                 }
             });
         }
@@ -561,10 +577,10 @@ const RegTime = () => {
                                 <View style={styles.inputChild}>
                                     <Text style={{ fontSize: 12, color: "#2C334066" }}>ToDo ID</Text>
 
-                                    <TextInput style={styles.input} placeholder='Ange ToDo ID' />
-
+                                    {/* <TextInput style={styles.input} placeholder='Ange ToDo ID' /> */}
+                                    <Text style={styles.input}>{postToModify.fieldData['!todo']}</Text>
                                 </View>
-                                <Text style={styles.inputResult}>Placeholder Money</Text>
+                                <Text style={styles.inputResult}>{postToModify && postToModify.fieldData.common_item_price !== "" ? `${postToModify.fieldData.common_item_price} kr` : "0 kr"}</Text>
                             </View>
 
                             {/* TIME INPUT */}
@@ -598,7 +614,7 @@ const RegTime = () => {
 
                             <View style={styles.checkboxContainer}>
                                 <View style={styles.checkBoxSubContainer}>
-                                    <Text style={styles.checkboxText}>Debitera</Text><TouchableOpacity onPress={handleDebitera} style={styles.checkbox}>{isDebiterat ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>
+                                    <Text style={styles.checkboxText}>Debitera</Text><TouchableOpacity onPress={handleDebitera} style={styles.checkbox}>{postToModify.fieldData.time_chargeable === 1 ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>
                                 </View>
                                 <View style={styles.checkBoxSubContainer}>
                                     <Text style={styles.checkboxText}>Ej arbete</Text><TouchableOpacity onPress={handleEjArbete} style={styles.checkbox}>{ejArbete ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>

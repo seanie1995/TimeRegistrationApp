@@ -31,7 +31,6 @@ const CalendarPage = () => {
         })
     }, [navigation, dateTitle])
 
-    const mockData = [{"fieldData": {"!ID": 298722, "!common_our_reference": "SOS", "recordId": "511336", "todo_arendenr": "", "todo_date": "05/05/2025", "todo_done": "", "todo_head": "Test Todo", "todo_start": "09:00:00", "todo_stop": "10:00:00", "todo_text": "Test text"}}]
 
     // FETCHES DATA
     useFocusEffect(
@@ -109,7 +108,10 @@ const CalendarPage = () => {
                     time_employee_id: item.time_employee_id,
                     recordId: item.recordId,
                     time_chargeable: item.time_chargeable,
-                    time_not_worked: item.time_not_worked,
+                    time_not_worked: item.time_not_worked,  
+                    '!todo': item['!todo'],
+                    common_item_price: item.common_item_price,
+                    
                 }
             }));
 

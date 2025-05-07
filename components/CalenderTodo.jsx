@@ -22,10 +22,6 @@ const CalenderTodo = (todoList, isToday, openEventCell) => {
         }
     }, [isToday])
 
-    useEffect(() => {
-        console.log(todoList)
-    })
-
     const timeConverter = (timeString, isToday) => {
         let date;
         const [hours, minutes] = timeString.split(':');

@@ -9,6 +9,7 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
 
     const [events, setEvents] = useState([]);
     const [chosenDay, setChosenDay] = useState();
+   
 
     const FindProjectName = async (projectCode) => {
         const projectList = await AsyncStorage.getItem("projectValueLists");
@@ -57,12 +58,15 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 const chosenRecordId = item?.fieldData.recordId
                 const isCommentNull = item?.fieldData.common_comment_customer === ""
                 const chosenItem = item
+                const isChargeable = item?.fieldData.time_chargeable === 1
+
                 return {
                     title: `${projectName} `,
                     start: startDate,
                     end: endDate,
                     isCommentNull: isCommentNull,
-                    chosenEvent: chosenItem
+                    chosenEvent: chosenItem,
+                    isChargeable: isChargeable
                 };
             }));
 
@@ -92,17 +96,19 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
 
+                eventCellTextColor="black"
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
-                        backgroundColor: event.isCommentNull ? "#C0C0C0" : "#3B71CA",
+                        backgroundColor: event.isChargeable ?  "#D4E9D4" : event.isCommentNull ? "#C0C0C0" : "#3B71CA",
                         borderLeftWidth: 5,
-                        borderColor: event.isCommentNull ? "#909090" : "#0b52c2",
+                        borderColor: event.isChargeable ? "#D4E9D4" : event.isCommentNull ? "#909090" : "#0b52c2",
                         borderTopWidth: 1,
                         borderBottomWidth: 1,
                         borderRadius: 6,
                         paddingHorizontal: 6,
-                        paddingVertical: 4
+                        paddingVertical: 4,
+
                     };
                 }}
             />
