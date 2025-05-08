@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }) => {
 
     const [chosenDayPosts, setChosenDayPosts] = useState([]);
 
-
+    const [currentDayEvents, setCurrentDayEvents] = useState([]);
+    const [yesterdayEvents, setYesterdayEvents] = useState([])
 
     const [selectedStartTime, setSelectedStartTime] = useState();
     const [selectedEndTime, setSelectedEndTime] = useState()
@@ -311,7 +312,7 @@ export const AuthProvider = ({ children }) => {
                 yesterdaysDateNormal, setChosenDate, chosenDate, currentDayPosts, 
                 setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, timeSort, selectedStartTime, setSelectedStartTime, selectedEndTime, setSelectedEndTime,
                 timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal, 
-                currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos
+                currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents
             }}>
             {children}
         </AuthContext.Provider>

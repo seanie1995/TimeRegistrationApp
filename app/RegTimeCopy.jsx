@@ -44,10 +44,6 @@ const RegTime = () => {
         setArticlePickerOpen(true);
     }
 
-    useEffect(() => {
-        console.log(postToModify)
-    })
-
     const [isTimePickerOpen, setTimePickerIsOpen] = useState(false);
 
     useEffect(() => {
@@ -538,7 +534,7 @@ const RegTime = () => {
                                     <Text style={{ fontSize: 12, color: "#2C334066" }}>Projektkod</Text>
 
                                     <TouchableOpacity style={styles.input} onPress={ToggleProjectPicker}>
-                                        <Text>
+                                        <Text style={styles.inputButtons}>
                                             {
                                                 postToModify && postToModify.fieldData["!Project"]
                                                     ? postToModify.fieldData["!Project"]
@@ -560,7 +556,7 @@ const RegTime = () => {
                                     <Text style={{ fontSize: 12, color: "#2C334066" }}>Artikelkod</Text>
 
                                     <TouchableOpacity style={styles.input} onPress={ToggleArticlePicker}>
-                                        <Text>
+                                        <Text style={styles.inputButtons}>
                                             {
                                                 postToModify && postToModify.fieldData.common_article_no
                                                     ? postToModify.fieldData.common_article_no
@@ -682,7 +678,7 @@ const styles = StyleSheet.create({
     input: {
         position: "absolute",
         // marginLeft: 15,
-        fontSize: 15,
+
         left: 70,
         bottom: 9
 
@@ -693,6 +689,10 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         marginLeft: 70,
         fontWeight: "bold"
+    },
+
+    inputButtons: {
+        fontSize: 18
     },
 
     // TIDSVÄLJARE
@@ -710,12 +710,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         height: 50,
         width: 172,
+
         borderRadius: 6,
         backgroundColor: "#2C33400D",
 
     },
     timeInput: {
         textAlign: "auto",
+        fontSize: 18
     },
 
     // DEBITERA, EJ ARBETE TOGGLES
