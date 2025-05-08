@@ -12,7 +12,7 @@ import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/nativ
 const CalendarPage = () => {
 
     const { userName, token, currentDayPosts, setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort,
-        todaysDateNormal, yesterdaysDateNormal, currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos } = useContext(AuthContext);
+        todaysDateNormal, yesterdaysDateNormal, currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents } = useContext(AuthContext);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const route = useRoute();
     const navigation = useNavigation();
@@ -32,14 +32,13 @@ const CalendarPage = () => {
     }, [navigation, dateTitle])
 
 
-    // FETCHES DATA
+    // FETCHES REGISTERED POSTS DATA
     useFocusEffect(
         React.useCallback(() => {
             if (chosenDate === todaysDateUS) {
                 if (currentDayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
-                    fetchTodoData();       
                 } else {
                     console.log("Local Data Used. Src: CalendarPage.jsx");
                 }
@@ -47,12 +46,11 @@ const CalendarPage = () => {
                 if (yesterdayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
-                    fetchTodoData();
                 } else {
                     console.log("Local Data Used. Src: CalendarPage.jsx");
                 }
-            }      
-        }, [chosenDate, currentDayPosts, yesterdayPosts, currentDayTodos, yesterdayTodos]) 
+            }
+        }, [chosenDate, currentDayPosts, yesterdayPosts, currentDayTodos, yesterdayTodos])
     );
 
     useEffect(() => {
@@ -108,10 +106,10 @@ const CalendarPage = () => {
                     time_employee_id: item.time_employee_id,
                     recordId: item.recordId,
                     time_chargeable: item.time_chargeable,
-                    time_not_worked: item.time_not_worked,  
+                    time_not_worked: item.time_not_worked,
                     '!todo': item['!todo'],
                     common_item_price: item.common_item_price,
-                    
+
                 }
             }));
 
@@ -126,15 +124,12 @@ const CalendarPage = () => {
         }
     }
 
-    const fetchTodoData = async () => {
+    const fetchTodoData = async (eventList) => {
 
         const requestBody = {
-            "query": [
-                {
-                    "!common_our_reference": userName,
-                    "todo_date": `${chosenDate}`
-                }
-            ]
+            "query": eventList.map(event => ({
+                "!ID": event.fieldData['!todo']
+            }))
         };
 
         const API_URL_ANDROID = "http://10.0.2.2:80/fetchTodo";
@@ -173,10 +168,158 @@ const CalendarPage = () => {
             } else if (chosenDate === yesterdaysDateUS) {
                 setYesterdayTodos(formattedResponse)
             }
+
+            return formattedResponse;
         } catch (e) {
             console.log(e)
         }
     }
+
+    const fetchEventUserData = async () => {
+
+        const requestBody = {
+            "query": [
+                {
+                    "!user": userName,
+                }
+            ],
+            "sort": [
+                {
+                    "fieldName": "!event",
+                    "sortOrder": "descend"
+                }
+            ],
+            "limit": 20
+        }
+
+        const API_URL_ANDROID = "http://10.0.2.2:80/fetchEventUsers";
+        const API_URL_IOS = "http://10.0.200.102/fetchEventUsers";
+        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
+
+        let URL = ""
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
+        }
+
+        try {
+            const response = await axios.post(URL, requestBody, { headers: { Authorization: `Bearer ${token}` } });
+            const responseBody = response.data.data;
+
+            const formattedResponse = responseBody.map(item => ({
+                fieldData: {
+                    '!user': item['!user'],
+                    "!ID": item['!ID'],
+                    '!event': item['!event'],
+                    eventuser_done: item.eventuser_done,
+                    event_date_start: item.event_date_start
+                }
+            }));
+
+            return formattedResponse
+        } catch (e) {
+            console.log(e + " Failure from fetchEventUsers")
+        }
+    }
+
+    const fetchEventData = async (eventUsers) => {
+
+        const requestBody = {
+            "query": eventUsers.map(user => ({
+                "!ID": user.fieldData['!event']
+            }))
+        }
+
+        const API_URL_ANDROID = "http://10.0.2.2:80/fetchEvents";
+        const API_URL_IOS = "http://10.0.200.102/fetchEvents";
+        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
+
+        let URL = ""
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
+        }
+
+        try {
+            const response = await axios.post(URL, requestBody, { headers: { Authorization: `Bearer ${token}` } });
+            const responseBody = response.data.data;
+
+            const formattedResponse = responseBody.map(item => ({
+                fieldData: {
+                    '!ID': item['!ID'],
+                    "!todo": item['!todo'],
+                    event_date_end: item.event_date_end,
+                    event_date_start: item.event_date_start,
+                    event_time_end: item.event_time_end.substring(0, 5),
+                    event_time_start: item.event_time_start.substring(0, 5)
+                }
+            }));
+
+            const chosenDateEvents = formattedResponse.filter(events =>
+                events.fieldData.event_date_start === chosenDate
+            )
+
+            return chosenDateEvents;
+        } catch (e) {
+            console.log("Failure from fetchEventData " + e)
+        }
+    }
+
+    const processEventData = async () => {
+        try {
+            const eventUsers = await fetchEventUserData();
+            if (!eventUsers || eventUsers.length === 0) return
+
+            const eventData = await fetchEventData(eventUsers)
+            const todos = await fetchTodoData(eventData)
+
+            if (eventData.length === 0) {
+                console.log("No events for today")
+            }
+
+            const finalEventList = eventData.map(event => {
+                const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
+                return {
+                    event_time_start: event.fieldData.event_time_start,
+                    event_time_end: event.fieldData.event_time_end,
+                    "!todo": event.fieldData["!todo"],
+                    event_ID: event.fieldData["!ID"],
+                    todo_head: matchingTodo?.fieldData.todo_head || null,
+                    event_date_start: event.fieldData.event_date_end
+                }
+            })
+
+            return finalEventList;
+
+        } catch (error) {
+            console.log("Failed to fetch todays events" + " " + error)
+        }
+    }
+
+    useEffect(() => {
+        const fetchAndSetEvents = async () => {
+            const events = await processEventData();
+
+            if (!events) return;
+
+            if (chosenDate === todaysDateUS) {
+                setCurrentDayEvents(events);
+            } else if (chosenDate === yesterdaysDateUS) {
+                try {
+                    setYesterdayEvents(events);
+                } catch (e) {
+                    console.log(e)
+                }
+
+            }
+        };
+        fetchAndSetEvents();
+
+    }, [chosenDate]);
 
 
 
@@ -268,13 +411,13 @@ const CalendarPage = () => {
                     <View>
                         {chosenDate === todaysDateUS ? (
                             <ToDoCalendar
-                                chosenEvents={currentDayTodos}
+                                chosenEvents={currentDayEvents}
                                 isToday={true}
                                 openEventCell={OnOpenEventCell}
                             />
                         ) : chosenDate !== todaysDateUS ? (
                             <ToDoCalendar
-                                chosenEvents={yesterdayTodos} 
+                                chosenEvents={yesterdayEvents}
                                 isToday={false}
                                 openEventCell={OnOpenEventCell}
                             />
@@ -283,10 +426,7 @@ const CalendarPage = () => {
                         )}
                     </View>
                 }
-
-
             </View>
-
         </View>
     )
 }
@@ -310,6 +450,7 @@ const styles = StyleSheet.create({
     timelineTabContainer: {
         flexDirection: "row",
         margin: "auto",
+        marginBottom: 10
     },
 
 })

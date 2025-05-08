@@ -6,7 +6,7 @@ import { Calendar } from 'react-native-big-calendar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AuthContext } from "../app/Context.jsx";
 
-const CalenderTodo = (todoList, isToday, openEventCell) => {
+const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
 
     const [events, setEvents] = useState([]);
     const [chosenDay, setChosenDay] = useState();
@@ -39,17 +39,15 @@ const CalenderTodo = (todoList, isToday, openEventCell) => {
     useEffect(() => {
 
         const formatEvents = async () => {
-            const formattedEvents = await Promise.all(todoList.map(async item => {
-                const startDate = timeConverter(item.fieldData.todo_start, isToday);
-                const endDate = timeConverter(item.fieldData.todo_stop, isToday);
-                const projectName = await FindProjectName(item?.fieldData?.todo_head);
-                const chosenRecordId = item?.fieldData.recordId
-                const chosenItem = item
+            const formattedEvents = await Promise.all(chosenEvents.map(async item => {
+                const startDate = timeConverter(item.event_time_start, isToday);
+                const endDate = timeConverter(item.event_time_end, isToday);
+                const projectName = item.todo_head
                 return {
                     title: `${projectName} `,
                     start: startDate,
                     end: endDate,
-                    chosenEvent: chosenItem
+                    chosenEvent: item
                 };
             }));
 
@@ -57,10 +55,9 @@ const CalenderTodo = (todoList, isToday, openEventCell) => {
         }
         formatEvents();
 
-    }, [todoList, isToday]);
+    }, [chosenEvents, isToday]);
     return (
         <GestureHandlerRootView style={styles.mainContainer}>
-
             <Calendar events={events}
                 mode="day"
                 hideNowIndicator="true"
@@ -72,7 +69,7 @@ const CalenderTodo = (todoList, isToday, openEventCell) => {
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
-                onPressEvent={(event) => openEventCell(event.chosenEvent)}
+                // onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
                         backgroundColor: event.isCommentNull ? "#C0C0C0" : "#3B71CA",
