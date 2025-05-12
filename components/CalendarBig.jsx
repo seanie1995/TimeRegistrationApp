@@ -74,7 +74,7 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
         }
         formatEvents();
 
-    }, [chosenEvents, , isToday]);
+    }, [chosenEvents, isToday]);
 
     const showEventDetails = (event) => {
         alert(event.recordId)
@@ -83,7 +83,6 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
     return (
 
         <GestureHandlerRootView style={styles.mainContainer}>
-
             <Calendar events={events}
                 mode="day"
                 hideNowIndicator="true"
@@ -95,7 +94,6 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
-
                 eventCellTextColor="black"
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
@@ -113,7 +111,6 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 }}
             />
         </GestureHandlerRootView>
-
     )
 }
 

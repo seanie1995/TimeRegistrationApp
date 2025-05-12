@@ -295,8 +295,6 @@ const RegTime = () => {
             });
         }
 
-
-
     }, [])
 
     // ADDING DATA TO FORM TO BE SENT TO API 

@@ -9,6 +9,7 @@ import { AuthContext } from "../app/Context.jsx";
 const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
 
     const [events, setEvents] = useState([]);
+
     const [chosenDay, setChosenDay] = useState();
 
     useEffect(() => {
@@ -69,7 +70,8 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
-                // onPressEvent={(event) => openEventCell(event.chosenEvent)}
+                eventCellTextColor='black'
+                onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
                         backgroundColor: event.isCommentNull ? "#C0C0C0" : "#3B71CA",

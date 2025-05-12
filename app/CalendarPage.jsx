@@ -19,7 +19,7 @@ const CalendarPage = () => {
     const { dateTitle, chosenDate } = route.params || { dateTitle, chosenDate: "Unknown" }
     const [isEventCellPopupOpen, setEventCellPopupOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null)
-
+    const [isBookedEvent, setIsBookedEvent] = useState();
     const [showToDo, setShowToDo] = useState(true)
 
     const toggleToDo = () => setShowToDo(true)
@@ -30,7 +30,6 @@ const CalendarPage = () => {
             title: dateTitle
         })
     }, [navigation, dateTitle])
-
 
     // FETCHES REGISTERED POSTS DATA
     useFocusEffect(
@@ -66,7 +65,6 @@ const CalendarPage = () => {
             )
         });
     }, [navigation, dateTitle]);
-
 
     const fetchData = async () => {
 
@@ -283,22 +281,24 @@ const CalendarPage = () => {
 
             const finalEventList = eventData.map(event => {
                 const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
-                return {
-                    event_time_start: event.fieldData.event_time_start,
-                    event_time_end: event.fieldData.event_time_end,
-                    "!todo": event.fieldData["!todo"],
-                    event_ID: event.fieldData["!ID"],
-                    todo_head: matchingTodo?.fieldData.todo_head || null,
-                    event_date_start: event.fieldData.event_date_end
+                return {                           
+                        event_time_start: event.fieldData.event_time_start,
+                        event_time_end: event.fieldData.event_time_end,
+                        "!todo": event.fieldData["!todo"],
+                        event_ID: event.fieldData["!ID"],
+                        todo_head: matchingTodo?.fieldData.todo_head || null,
+                        event_date_start: event.fieldData.event_date_end
                 }
             })
-
+            console.log(finalEventList)
             return finalEventList;
 
         } catch (error) {
             console.log("Failed to fetch todays events" + " " + error)
         }
     }
+
+
 
     useEffect(() => {
         const fetchAndSetEvents = async () => {
@@ -321,8 +321,6 @@ const CalendarPage = () => {
 
     }, [chosenDate]);
 
-
-
     const onRefresh = async () => {
         setIsRefreshing(true);
         await fetchData();  // Fetch data again
@@ -333,7 +331,13 @@ const CalendarPage = () => {
     const OnOpenEventCell = (event) => {
         setSelectedProject(event)
         setEventCellPopupOpen(true)
-        // alert(event.fieldData.recordId)
+        setIsBookedEvent(false)
+    }
+
+    const OnOpenBookedEventCell = (event) => {
+        setSelectedProject(event)
+        setEventCellPopupOpen(true)
+        setIsBookedEvent(true)
     }
 
     return (
@@ -343,8 +347,8 @@ const CalendarPage = () => {
                 <EventCell
                     onClose={() => setEventCellPopupOpen(false)}
                     visible={isEventCellPopupOpen}
-                    project={selectedProject}
-
+                    event={selectedProject}
+                    isBookedEvent={isBookedEvent}
                 />
             </Modal>
             <View style={styles.cardListContainer}>
@@ -391,16 +395,12 @@ const CalendarPage = () => {
                             <Calendar
                                 chosenEvents={currentDayPosts}
                                 isToday={true}
-                                isTodo={false}
-                                // openEventCell={() => setEventCellPopupOpen(true)}
                                 openEventCell={OnOpenEventCell}
                             />
                         ) : chosenDate !== todaysDateUS ? (
                             <Calendar
                                 chosenEvents={yesterdayPosts}
-                                isToday={false}
-                                isTodo={false}
-                                // openEventCell={() => setEventCellPopupOpen(true)}
+                                isToday={false}                          
                                 openEventCell={OnOpenEventCell}
                             />
                         ) : (
@@ -413,13 +413,13 @@ const CalendarPage = () => {
                             <ToDoCalendar
                                 chosenEvents={currentDayEvents}
                                 isToday={true}
-                                openEventCell={OnOpenEventCell}
+                                openEventCell={OnOpenBookedEventCell}
                             />
                         ) : chosenDate !== todaysDateUS ? (
                             <ToDoCalendar
                                 chosenEvents={yesterdayEvents}
                                 isToday={false}
-                                openEventCell={OnOpenEventCell}
+                                openEventCell={OnOpenBookedEventCell}
                             />
                         ) : (
                             <Text>No Events Available</Text>
