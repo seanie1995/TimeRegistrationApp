@@ -1,27 +1,114 @@
 import React, { useContext, useState } from 'react';
+import axios from 'axios';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from "../app/Context.jsx"
 
-const EventCellPopup = ({ project, onClose }) => {
+const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
 
-    const {
-        time_time_start,
-        time_time_end,
-        common_article_no,
-        common_comment_customer,
-        common_comment_internal,
-        time_employee_id,
-        recordId,
-        time_chargable,
-        time_not_worked
-    } = project?.fieldData ?? {};
+    const { userName, token } = useContext(AuthContext)
 
-    const [chosenStartTime, setChosenStartTime] = useState(time_time_start);
-    const [chosenEndTime, setChosenEndTime] = useState(time_time_end);
-    const [customerComment, setCustomerComment] = useState(common_comment_customer)
+    let chosenEvent;
+
+    if (!isBookedEvent) {
+        chosenEvent = {
+            time_time_start: event.fieldData.time_time_start,
+            time_time_end: event.fieldData.time_time_end,
+            common_article_no: event.fieldData.common_article_no,
+            common_comment_customer: event.fieldData.common_comment_customer,
+            common_comment_internal: event.fieldData.common_comment_internal,
+            time_employee_id: event.fieldData.time_employee_id,
+            recordId: event.fieldData.recordId,
+            time_chargable: event.fieldData.time_chargable,
+            time_not_worked: event.fieldData.time_not_worked
+        }
+    } else if (isBookedEvent) {
+        chosenEvent = {
+            event_ID: event.event_ID,
+            time_time_start: event.event_time_start,
+            time_time_end: event.event_time_end,
+            common_comment_customer: event.todo_head,
+            "!todo": event["!todo"]
+        }
+    }
+
+    const [chosenStartTime, setChosenStartTime] = useState(chosenEvent.time_time_start);
+    const [chosenEndTime, setChosenEndTime] = useState(chosenEvent.time_time_end);
+    const [customerComment, setCustomerComment] = useState(chosenEvent.common_comment_customer);
+
+    const [todoFinished, setTodoFinished] = useState(false);
+
+    const postBookedEvent = async () => {
+
+        const eventToPost = {
+            fieldData: {
+                "!common_article_name": "",
+                "!Project": "",
+                common_arendenr: "",
+                common_article_no: "",
+                common_comment_customer: customerComment,
+                time_employee_id: userName,
+                time_date: "",
+                time_source: "app",
+                time_time_end: chosenEndTime,
+                time_time_start: chosenStartTime,
+                "!todo": chosenEvent["!todo"],
+                "time_eventuser::eventuser_done": 1
+            }
+        }
+
+        const filteredData = Object.fromEntries(
+            Object.entries(eventToPost.fieldData)
+                .filter(([key]) => key === "")
+        );
 
 
+        const API_URL_ANDROID = "http://10.0.2.2:80/registerTime";
+        const API_URL_IOS = "http://10.0.200.102/registerTime";
+
+        let URL
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
+        }
+
+        
+
+        try {
+            
+            await axios.post(URL, filteredData, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+
+
+        } catch (e) {
+            console.log(e)
+        }
+
+
+    }
+
+    const postBookedEventFinished = () => {
+
+        const eventToPost = {
+            fieldData: {
+                "!common_article_name": "",
+                "!Project": "",
+                common_arendenr: "",
+                common_article_no: "",
+                common_comment_customer: customerComment,
+                time_employee_id: userName,
+                time_date: "",
+                time_source: "app",
+                time_time_end: chosenEndTime,
+                time_time_start: chosenStartTime,
+                "!todo": "",
+                "time_eventuser::eventuser_done": 1
+            }
+        }
+
+
+    }
     return (
         <View style={styles.mainContainer}>
             <View style={styles.container}>
@@ -32,7 +119,7 @@ const EventCellPopup = ({ project, onClose }) => {
                     placeholder='Kommentar till kund'
                     value={customerComment}
                     onChangeText={setCustomerComment}
-                    // value={project.fieldData.time_not_worked}
+                    // value={event.fieldData.time_not_worked}
                     placeholderTextColor="gray"
                 >
                 </TextInput>
@@ -51,16 +138,18 @@ const EventCellPopup = ({ project, onClose }) => {
                     />
                 </View>
             </View>
+
             <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={onClose}>
+                <TouchableOpacity onPress={postBookedEvent}>
                     <Text style={styles.confirmButton}>OK</Text>
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <Text style={styles.cancelButton}>Cancel</Text>
                 </TouchableOpacity>
             </View>
-
-
+            {isBookedEvent ? (
+                <TouchableOpacity onPress={onClose}><Text style={styles.confirmAndOkButton}>OK + Utförd</Text></TouchableOpacity>
+            ) : null}
         </View>
     )
 }
@@ -80,7 +169,6 @@ const styles = StyleSheet.create({
         margin: "auto",
         gap: 10,
         top: 10
-
     },
     timeContainer: {
         flexDirection: "row",
@@ -97,9 +185,11 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: "row",
+        // justifyContent: "space-between",
         margin: "auto",
-        gap: 20,
-        padding: 20
+        gap: 10,
+        paddingTop: 20,
+        paddingBottom: 10
     },
     confirmButton: {
         color: '#FAFFAF',
@@ -107,6 +197,16 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: "#70757F",
         borderRadius: 10,
+        width: 100,
+        textAlign: "center",
+        borderRadius: 20
+    },
+    confirmAndOkButton: {
+        color: '#FAFFAF',
+        margin: "auto",
+        padding: 10,
+        backgroundColor: "#70757F",
+
         width: 100,
         textAlign: "center",
         borderRadius: 20
