@@ -35,7 +35,9 @@ const ToDoCard = ({ project }) => {
         const diffMs = end - start;
         const diffHours = diffMs / (1000 * 60 * 60);
 
-        return diffHours;
+        const hoursString = diffHours.toString()
+
+        return hoursString;
     }
 
     const diffHours = CalculateHours(time_time_start, time_time_end)
@@ -50,11 +52,11 @@ const ToDoCard = ({ project }) => {
                 </View>
 
                 <View style={styles.hour}>
-                    <Text style={styles.textDiffHours}>{diffHours}</Text>
+                    <Text style={styles.textDiffHours}>{diffHours.substring(0,4)}</Text>
                 </View>
 
                 <TouchableOpacity onPress={() => goToRegTime(recordId)} style={styles.postInfo}>
-                    <Text style={styles.projectName}>{common_article_no}</Text>
+                    <Text style={styles.projectName}>{!common_article_no ? "Saknar Artikel" : common_article_no}</Text>
                     <Text numberOfLines={1} ellipsizeMode='tail' style={styles.text}>{common_comment_customer}</Text>
                 </TouchableOpacity>
 

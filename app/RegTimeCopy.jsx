@@ -359,8 +359,6 @@ const RegTime = () => {
                 "fieldData": filteredData
             };
 
-            console.log(payload.fieldData)
-
             await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
 
             const tempId = Math.floor(Math.random() * 1000)
