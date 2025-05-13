@@ -30,20 +30,19 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
             common_comment_customer: event.todo_head,
             "!todo": event["!todo"],
             time_date: event.event_date_start,
-            user_recordId: event.user_recordId
+            user_recordId: event.user_recordId,
+            todo_recordId: event.todo_recordId
         }
     }
-
-
 
     const [chosenStartTime, setChosenStartTime] = useState(chosenEvent.time_time_start);
     const [chosenEndTime, setChosenEndTime] = useState(chosenEvent.time_time_end);
     const [customerComment, setCustomerComment] = useState(chosenEvent.common_comment_customer);
     const [eventDate, setEventDate] = useState(chosenEvent.time_date);
 
-    const [todoFinished, setTodoFinished] = useState(false);
+    const postBookedEvent = async (toDoDone) => {
 
-    const postBookedEvent = async () => {
+        const isToDoDone = toDoDone
 
         const eventToPost = {
             fieldData: {
@@ -82,11 +81,10 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
         } else if (Platform.OS === 'android') {
             URL = API_URL_ANDROID
         }
-        
+
         try {
-            
+
             await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
-            // console.log(eventToPost)
 
             const tempId = Math.floor(Math.random() * 1000)
 
@@ -98,44 +96,82 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 }
             }
 
+            if (!isToDoDone) {
+                await setEventUserDone(chosenEvent.user_recordId)
+            } else if (isToDoDone) {
+                await setTodoDone(chosenEvent.todo_recordId)
+            }
+
+
             if (eventDate === todaysDateUS) {
                 setCurrentDayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]));
-           
+
             } else if (eventDate === yesterdaysDateUS) {
                 setYesterdayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]))
             }
-
             onClose();
-
 
         } catch (e) {
             console.log(e + ". Failure found in EventCellPopup")
         }
-
-
     }
 
-    const postBookedEventFinished = () => {
+    const setEventUserDone = async (recordId) => {
 
-        const eventToPost = {
-            fieldData: {
-                "!common_article_name": "",
-                "!Project": "",
-                common_arendenr: "",
-                common_article_no: "",
-                common_comment_customer: customerComment,
-                time_employee_id: userName,
-                time_date: "",
-                time_source: "app",
-                time_time_end: chosenEndTime,
-                time_time_start: chosenStartTime,
-                "!todo": "",
-                // "time_eventuser::eventuser_done": 1
-            }
+        const API_URL_ANDROID = `http://10.0.2.2:80/modifyEventUser/${recordId}`;
+        const API_URL_IOS = `http://10.0.200.102/modifyEventUser/${recordId}`;
+
+        let URL
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
         }
 
+        try {
 
+            const payload = {
+                fieldData: {
+                    eventuser_done: "1"
+                }
+            }
+
+            await axios.patch(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+
+        } catch (e) {
+            console.log("EventUser Update Failed " + e)
+        }
     }
+
+    const setTodoDone = async (recordId) => {
+        const API_URL_ANDROID = `http://10.0.2.2:80/modifyTodo/${recordId}`;
+        const API_URL_IOS = `http://10.0.200.102/modifyTodo/${recordId}`;
+
+        let URL
+
+        if (Platform.OS === 'ios') {
+            URL = API_URL_IOS
+        } else if (Platform.OS === 'android') {
+            URL = API_URL_ANDROID
+        }
+
+        try {
+
+            const payload = {
+                fieldData: {
+                    "todo_done": "1"
+                }
+            }
+            alert("You made it here!")
+            await axios.patch(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+
+            console.log(recordId)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     return (
         <View style={styles.mainContainer}>
             <View style={styles.container}>
@@ -167,7 +203,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
             </View>
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={postBookedEvent}>
+                <TouchableOpacity onPress={() => postBookedEvent(false)}>
                     <Text style={styles.confirmButton}>OK</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={onClose}>
@@ -175,7 +211,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 </TouchableOpacity>
             </View>
             {isBookedEvent ? (
-                <TouchableOpacity onPress={onClose}><Text style={styles.confirmAndOkButton}>OK + Utförd</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => postBookedEvent(true)}><Text style={styles.confirmAndOkButton}>OK + Utförd</Text></TouchableOpacity>
             ) : null}
         </View>
     )

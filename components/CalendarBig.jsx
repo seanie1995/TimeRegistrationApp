@@ -96,7 +96,7 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
                 eventCellTextColor="black"
-                onPressEvent={(event) => openEventCell(event.chosenEvent)}
+                // onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
                         backgroundColor: event.isChargeable ?  "#D4E9D4" : event.isCommentNull ? "#C0C0C0" : event.noArticleNumber ? "#F16C78" : "#90c2f9",
