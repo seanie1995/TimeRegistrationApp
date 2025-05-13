@@ -74,7 +74,7 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
-                        backgroundColor: event.isCommentNull ? "#C0C0C0" : "#3B71CA",
+                        backgroundColor: event.isCommentNull ? "#C0C0C0" : "#90c2f9",
                         borderLeftWidth: 5,
                         borderColor: event.isCommentNull ? "#909090" : "#0b52c2",
                         borderTopWidth: 1,

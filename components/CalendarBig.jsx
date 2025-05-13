@@ -14,14 +14,13 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
     const FindProjectName = async (projectCode) => {
         const projectList = await AsyncStorage.getItem("projectValueLists");
         const parsedList = projectList ? JSON.parse(projectList) : null;
-
+    
         if (!parsedList || !Array.isArray(parsedList.valueLists)) return null;
-
-        const foundItem = parsedList.valueLists.find(item => item.value === projectCode)
-        const projectName = foundItem.displayValue
-
-        return projectName;
+    
+        const foundItem = parsedList.valueLists.find(item => item.value === projectCode);
+        return foundItem?.displayValue ?? 'Saknar Titel'; // Safe fallback
     }
+    
 
     useEffect(() => {
         if (isToday) {
@@ -59,6 +58,7 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 const isCommentNull = item?.fieldData.common_comment_customer === ""
                 const chosenItem = item
                 const isChargeable = item?.fieldData.time_chargeable === 1
+                const noArticleNumber = !item?.fieldData["!Project"]
 
                 return {
                     title: `${projectName} `,
@@ -66,7 +66,8 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                     end: endDate,
                     isCommentNull: isCommentNull,
                     chosenEvent: chosenItem,
-                    isChargeable: isChargeable
+                    isChargeable: isChargeable,
+                    noArticleNumber: noArticleNumber
                 };
             }));
 
@@ -98,9 +99,9 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
-                        backgroundColor: event.isChargeable ?  "#D4E9D4" : event.isCommentNull ? "#C0C0C0" : "#3B71CA",
+                        backgroundColor: event.isChargeable ?  "#D4E9D4" : event.isCommentNull ? "#C0C0C0" : event.noArticleNumber ? "#F16C78" : "#90c2f9",
                         borderLeftWidth: 5,
-                        borderColor: event.isChargeable ? "#D4E9D4" : event.isCommentNull ? "#909090" : "#0b52c2",
+                        borderColor: event.isChargeable ? "#D4E9D4" : event.isCommentNull ? "#909090" : event.noArticleNumber ? "#dc3545" : "#0b52c2",
                         borderTopWidth: 1,
                         borderBottomWidth: 1,
                         borderRadius: 6,

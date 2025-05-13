@@ -25,6 +25,8 @@ const CalendarPage = () => {
     const toggleToDo = () => setShowToDo(true)
     const toggleReg = () => setShowToDo(false)
 
+
+
     useEffect(() => {
         navigation.setOptions({
             title: dateTitle
@@ -212,7 +214,8 @@ const CalendarPage = () => {
                     "!ID": item['!ID'],
                     '!event': item['!event'],
                     eventuser_done: item.eventuser_done,
-                    event_date_start: item.event_date_start
+                    event_date_start: item.event_date_start,
+                    recordId: item.recordId
                 }
             }));
 
@@ -253,7 +256,8 @@ const CalendarPage = () => {
                     event_date_end: item.event_date_end,
                     event_date_start: item.event_date_start,
                     event_time_end: item.event_time_end.substring(0, 5),
-                    event_time_start: item.event_time_start.substring(0, 5)
+                    event_time_start: item.event_time_start.substring(0, 5),
+                    recordId: item.recordId
                 }
             }));
 
@@ -281,24 +285,29 @@ const CalendarPage = () => {
 
             const finalEventList = eventData.map(event => {
                 const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
-                return {                           
-                        event_time_start: event.fieldData.event_time_start,
-                        event_time_end: event.fieldData.event_time_end,
-                        "!todo": event.fieldData["!todo"],
-                        event_ID: event.fieldData["!ID"],
-                        todo_head: matchingTodo?.fieldData.todo_head || null,
-                        event_date_start: event.fieldData.event_date_end
-                }
-            })
-            console.log(finalEventList)
+                const matchingUser = eventUsers.find(user => user.fieldData['!event'] === event.fieldData['!ID']);
+
+    
+
+                return {
+                    event_time_start: event.fieldData.event_time_start,
+                    event_time_end: event.fieldData.event_time_end,
+                    "!todo": event.fieldData["!todo"],
+                    event_ID: event.fieldData["!ID"],
+                    todo_head: matchingTodo?.fieldData.todo_head || null,
+                    event_date_start: event.fieldData.event_date_start,
+                    event_date_end: event.fieldData.event_date_end,
+                    user_recordId: matchingUser?.fieldData.recordId || "Not found" 
+                };
+            });
+
+  
             return finalEventList;
 
         } catch (error) {
             console.log("Failed to fetch todays events" + " " + error)
         }
     }
-
-
 
     useEffect(() => {
         const fetchAndSetEvents = async () => {
@@ -374,7 +383,7 @@ const CalendarPage = () => {
                             <ToDoCard key={index} project={projects} />
                         ))
                     ) : (
-                        <Text>Inga Tider</Text>  // Fallback message
+                        <Text style={{ textAlign: "center" }}>Inga Tider</Text>  // Fallback message
                     )}
                 </ScrollView>)}
             </View>
@@ -400,7 +409,7 @@ const CalendarPage = () => {
                         ) : chosenDate !== todaysDateUS ? (
                             <Calendar
                                 chosenEvents={yesterdayPosts}
-                                isToday={false}                          
+                                isToday={false}
                                 openEventCell={OnOpenEventCell}
                             />
                         ) : (

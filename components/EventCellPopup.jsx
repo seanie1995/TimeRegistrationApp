@@ -6,7 +6,7 @@ import { AuthContext } from "../app/Context.jsx"
 
 const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
 
-    const { userName, token } = useContext(AuthContext)
+    const { userName, token, setCurrentDayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, currentDayPosts } = useContext(AuthContext)
 
     let chosenEvent;
 
@@ -28,13 +28,18 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
             time_time_start: event.event_time_start,
             time_time_end: event.event_time_end,
             common_comment_customer: event.todo_head,
-            "!todo": event["!todo"]
+            "!todo": event["!todo"],
+            time_date: event.event_date_start,
+            user_recordId: event.user_recordId
         }
     }
+
+
 
     const [chosenStartTime, setChosenStartTime] = useState(chosenEvent.time_time_start);
     const [chosenEndTime, setChosenEndTime] = useState(chosenEvent.time_time_end);
     const [customerComment, setCustomerComment] = useState(chosenEvent.common_comment_customer);
+    const [eventDate, setEventDate] = useState(chosenEvent.time_date);
 
     const [todoFinished, setTodoFinished] = useState(false);
 
@@ -48,20 +53,24 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 common_article_no: "",
                 common_comment_customer: customerComment,
                 time_employee_id: userName,
-                time_date: "",
+                time_date: eventDate,
                 time_source: "app",
                 time_time_end: chosenEndTime,
                 time_time_start: chosenStartTime,
                 "!todo": chosenEvent["!todo"],
-                "time_eventuser::eventuser_done": 1
             }
         }
 
         const filteredData = Object.fromEntries(
             Object.entries(eventToPost.fieldData)
-                .filter(([key]) => key === "")
+                .filter(([_, value]) => value !== "")
         );
 
+        const payload = {
+            "fieldData": {
+                ...filteredData
+            }
+        }
 
         const API_URL_ANDROID = "http://10.0.2.2:80/registerTime";
         const API_URL_IOS = "http://10.0.200.102/registerTime";
@@ -73,16 +82,34 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
         } else if (Platform.OS === 'android') {
             URL = API_URL_ANDROID
         }
-
         
-
         try {
             
-            await axios.post(URL, filteredData, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+            await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+            // console.log(eventToPost)
+
+            const tempId = Math.floor(Math.random() * 1000)
+
+            const updatedEventData = {
+                ...eventToPost,
+                "fieldData": {
+                    ...eventToPost.fieldData,
+                    recordId: tempId
+                }
+            }
+
+            if (eventDate === todaysDateUS) {
+                setCurrentDayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]));
+           
+            } else if (eventDate === yesterdaysDateUS) {
+                setYesterdayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]))
+            }
+
+            onClose();
 
 
         } catch (e) {
-            console.log(e)
+            console.log(e + ". Failure found in EventCellPopup")
         }
 
 
@@ -103,7 +130,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 time_time_end: chosenEndTime,
                 time_time_start: chosenStartTime,
                 "!todo": "",
-                "time_eventuser::eventuser_done": 1
+                // "time_eventuser::eventuser_done": 1
             }
         }
 
@@ -143,7 +170,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 <TouchableOpacity onPress={postBookedEvent}>
                     <Text style={styles.confirmButton}>OK</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={onClose}>
                     <Text style={styles.cancelButton}>Cancel</Text>
                 </TouchableOpacity>
             </View>
