@@ -284,12 +284,10 @@ const CalendarPage = () => {
             }
 
             const finalEventList = eventData.map(event => {
-                const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
-                const matchingUser = eventUsers.find(user => user.fieldData['!event'] === event.fieldData['!ID']);
+            const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
+            const matchingUser = eventUsers.find(user => user.fieldData['!event'] === event.fieldData['!ID']);
 
-    
-
-                return {
+            return {
                     event_time_start: event.fieldData.event_time_start,
                     event_time_end: event.fieldData.event_time_end,
                     "!todo": event.fieldData["!todo"],
@@ -297,11 +295,12 @@ const CalendarPage = () => {
                     todo_head: matchingTodo?.fieldData.todo_head || null,
                     event_date_start: event.fieldData.event_date_start,
                     event_date_end: event.fieldData.event_date_end,
-                    user_recordId: matchingUser?.fieldData.recordId || "Not found" 
+                    user_recordId: matchingUser?.fieldData.recordId || null,
+                    todo_recordId: matchingTodo?.fieldData.recordId || null
                 };
             });
 
-  
+            console.log(finalEventList)
             return finalEventList;
 
         } catch (error) {

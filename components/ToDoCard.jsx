@@ -7,6 +7,7 @@ const ToDoCard = ({ project }) => {
     if (!project || !project.fieldData) {
         return <Text>Loading...</Text>; 
     }
+    
     const {
         time_time_start,
         time_time_end,
