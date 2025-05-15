@@ -48,9 +48,7 @@ const ValueListPicker = ({ onClose, onSelect }) => {
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
                 <Text onPress={onClose} style={{ color: '#FAFFAF', margin: "auto", padding: 10, backgroundColor: "#DC4C64", borderRadius: 10, fontSize: 20 }}>Cancel</Text>
-
             </View>
-
         </View>
     );
 };

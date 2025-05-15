@@ -485,9 +485,7 @@ const RegTime = () => {
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={{ flex: 1 }}
-
                 >
-
                     <Modal visible={isTimePickerOpen} transparent={true} animationType='slide' onRequestClose={() => SetTimePickerIsOpen(false)}>
                         <TimePicker
                             onClose={() => setTimePickerIsOpen(false)}
@@ -511,7 +509,6 @@ const RegTime = () => {
                             onClose={() => setArticlePickerOpen(false)}
                             visible={isArticlePickerOpen}
                             onSelect={handleArticleSelect}
-
                         />
                     </Modal>
 
@@ -520,7 +517,6 @@ const RegTime = () => {
                         keyboardShouldPersistTaps="handled" // Allows touchable elements to work even when the keyboard is visible
                         scrollEnabled={true}
                     >
-
                         <View style={styles.container}>
 
                             {/* PROJEKTKOD, ARTIKELKOD, TODOID INPUTS */}
@@ -540,8 +536,6 @@ const RegTime = () => {
                                             }
                                         </Text>
                                     </TouchableOpacity>
-
-
                                 </View>
                                 <Text style={styles.inputResult}>
                                     {!projectNameDisplay ? "" : projectNameDisplay}
@@ -605,12 +599,12 @@ const RegTime = () => {
                             {/* DEBITERA x EJ ARBETE */}
 
                             <View style={styles.checkboxContainer}>
-                                <View style={styles.checkBoxSubContainer}>
+                                {/* <View style={styles.checkBoxSubContainer}>
                                     <Text style={styles.checkboxText}>Debitera</Text><TouchableOpacity onPress={handleDebitera} style={styles.checkbox}>{postToModify.fieldData.time_chargeable === 1 ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>
-                                </View>
-                                <View style={styles.checkBoxSubContainer}>
-                                    <Text style={styles.checkboxText}>Ej arbete</Text><TouchableOpacity onPress={handleEjArbete} style={styles.checkbox}>{ejArbete ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>
-                                </View>
+                                </View> */}
+                                {/* <View style={styles.checkBoxSubContainer}>
+                                    <Text style={styles.checkboxText}>Ej arbete</Text><TouchableOpacity style={styles.checkbox}>{ejArbete ? (<Text style={styles.checkboxChecked}>X</Text>) : null}</TouchableOpacity>
+                                </View> */}
                             </View>
 
                             {/* KUNDKOMMENTAR INPUT FIELDS */}

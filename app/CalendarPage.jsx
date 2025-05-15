@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, FlatList, Platform, TouchableOpacity, Image, Modal } from 'react-native'
+import { View, Text, ScrollView, RefreshControl, Platform, TouchableOpacity, Image, Modal } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { AuthContext } from "./Context";
 import axios from 'axios';
@@ -25,13 +25,16 @@ const CalendarPage = () => {
     const toggleToDo = () => setShowToDo(true)
     const toggleReg = () => setShowToDo(false)
 
-
-
     useEffect(() => {
         navigation.setOptions({
             title: dateTitle
         })
     }, [navigation, dateTitle])
+
+    const onEventOk = () => {
+        setEventCellPopupOpen(false)
+        toggleReg();
+    }
 
     // FETCHES REGISTERED POSTS DATA
     useFocusEffect(
@@ -109,7 +112,6 @@ const CalendarPage = () => {
                     time_not_worked: item.time_not_worked,
                     '!todo': item['!todo'],
                     common_item_price: item.common_item_price,
-
                 }
             }));
 
@@ -160,8 +162,12 @@ const CalendarPage = () => {
                     recordId: item.recordId,
                     todo_arendenr: item.todo_arendenr,
                     '!common_our_reference': item['!common_our_reference'],
+                    "!project": item['!project'],
+                    '!Article': item["!Article"]
                 }
             }));
+
+  
 
             if (chosenDate === todaysDateUS) {
                 setCurrentDayTodos(formattedResponse);
@@ -175,62 +181,15 @@ const CalendarPage = () => {
         }
     }
 
-    const fetchEventUserData = async () => {
+    const fetchEventData = async () => {
 
         const requestBody = {
             "query": [
                 {
-                    "!user": userName,
+                    "event_EVENTUSER::!user": userName,
+                    "event_date_start": chosenDate
                 }
-            ],
-            "sort": [
-                {
-                    "fieldName": "!event",
-                    "sortOrder": "descend"
-                }
-            ],
-            "limit": 20
-        }
-
-        const API_URL_ANDROID = "http://10.0.2.2:80/fetchEventUsers";
-        const API_URL_IOS = "http://10.0.200.102/fetchEventUsers";
-        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
-
-        let URL = ""
-
-        if (Platform.OS === 'ios') {
-            URL = API_URL_IOS
-        } else if (Platform.OS === 'android') {
-            URL = API_URL_ANDROID
-        }
-
-        try {
-            const response = await axios.post(URL, requestBody, { headers: { Authorization: `Bearer ${token}` } });
-            const responseBody = response.data.data;
-
-            const formattedResponse = responseBody.map(item => ({
-                fieldData: {
-                    '!user': item['!user'],
-                    "!ID": item['!ID'],
-                    '!event': item['!event'],
-                    eventuser_done: item.eventuser_done,
-                    event_date_start: item.event_date_start,
-                    recordId: item.recordId
-                }
-            }));
-
-            return formattedResponse
-        } catch (e) {
-            console.log(e + " Failure from fetchEventUsers")
-        }
-    }
-
-    const fetchEventData = async (eventUsers) => {
-
-        const requestBody = {
-            "query": eventUsers.map(user => ({
-                "!ID": user.fieldData['!event']
-            }))
+            ]
         }
 
         const API_URL_ANDROID = "http://10.0.2.2:80/fetchEvents";
@@ -261,33 +220,27 @@ const CalendarPage = () => {
                 }
             }));
 
-            const chosenDateEvents = formattedResponse.filter(events =>
-                events.fieldData.event_date_start === chosenDate
-            )
-
-            return chosenDateEvents;
+            return formattedResponse;
         } catch (e) {
             console.log("Failure from fetchEventData " + e)
         }
     }
 
     const processEventData = async () => {
+
         try {
-            const eventUsers = await fetchEventUserData();
-            if (!eventUsers || eventUsers.length === 0) return
+            const events = await fetchEventData()
 
-            const eventData = await fetchEventData(eventUsers)
-            const todos = await fetchTodoData(eventData)
+            const todos = await fetchTodoData(events);
 
-            if (eventData.length === 0) {
+            if (events.length === 0) {
                 console.log("No events for today")
             }
 
-            const finalEventList = eventData.map(event => {
-            const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
-            const matchingUser = eventUsers.find(user => user.fieldData['!event'] === event.fieldData['!ID']);
+            const finalEventList = events.map(event => {
+                const matchingTodo = todos.find(todo => todo.fieldData['!ID'] === event.fieldData['!todo']);
 
-            return {
+                return {
                     event_time_start: event.fieldData.event_time_start,
                     event_time_end: event.fieldData.event_time_end,
                     "!todo": event.fieldData["!todo"],
@@ -295,16 +248,16 @@ const CalendarPage = () => {
                     todo_head: matchingTodo?.fieldData.todo_head || null,
                     event_date_start: event.fieldData.event_date_start,
                     event_date_end: event.fieldData.event_date_end,
-                    user_recordId: matchingUser?.fieldData.recordId || null,
-                    todo_recordId: matchingTodo?.fieldData.recordId || null
+                    todo_recordId: matchingTodo?.fieldData.recordId || null,
+                    "!project": matchingTodo?.fieldData["!project"] || null,
+                    "!Article": matchingTodo?.fieldData["!Article"] || null
                 };
             });
-
-            console.log(finalEventList)
+            
             return finalEventList;
 
         } catch (error) {
-            console.log("Failed to fetch todays events" + " " + error)
+            console.log(error)
         }
     }
 
@@ -328,6 +281,7 @@ const CalendarPage = () => {
         fetchAndSetEvents();
 
     }, [chosenDate]);
+
 
     const onRefresh = async () => {
         setIsRefreshing(true);
@@ -353,7 +307,8 @@ const CalendarPage = () => {
 
             <Modal visible={isEventCellPopupOpen} transparent={true} animationType='slide' onRequestClose={() => setEventCellPopupOpen(false)}>
                 <EventCell
-                    onClose={() => setEventCellPopupOpen(false)}
+                    onClose={onEventOk}
+                    onCancel={() => setEventCellPopupOpen(false)}
                     visible={isEventCellPopupOpen}
                     event={selectedProject}
                     isBookedEvent={isBookedEvent}
@@ -422,6 +377,7 @@ const CalendarPage = () => {
                                 chosenEvents={currentDayEvents}
                                 isToday={true}
                                 openEventCell={OnOpenBookedEventCell}
+                             
                             />
                         ) : chosenDate !== todaysDateUS ? (
                             <ToDoCalendar

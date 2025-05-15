@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from "../app/Context.jsx"
 
-const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
+const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
 
     const { userName, token, setCurrentDayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, currentDayPosts } = useContext(AuthContext)
 
@@ -30,51 +30,35 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
             common_comment_customer: event.todo_head,
             "!todo": event["!todo"],
             time_date: event.event_date_start,
-            user_recordId: event.user_recordId,
-            todo_recordId: event.todo_recordId
+            todo_recordId: event.todo_recordId,
+            projectID: event["!project"],
+            articleId: event["!Article"] || ""
         }
     }
+
+
 
     const [chosenStartTime, setChosenStartTime] = useState(chosenEvent.time_time_start);
     const [chosenEndTime, setChosenEndTime] = useState(chosenEvent.time_time_end);
     const [customerComment, setCustomerComment] = useState(chosenEvent.common_comment_customer);
     const [eventDate, setEventDate] = useState(chosenEvent.time_date);
 
-    const postBookedEvent = async (toDoDone) => {
+    const fetchEventUserData = async (eventUserId) => {
 
-        const isToDoDone = toDoDone
+        const requestBody = {
+            "query": [
+                {
+                    "!user": userName,
+                    "!event": eventUserId
+                }
+            ]
+        };
 
-        const eventToPost = {
-            fieldData: {
-                "!common_article_name": "",
-                "!Project": "",
-                common_arendenr: "",
-                common_article_no: "",
-                common_comment_customer: customerComment,
-                time_employee_id: userName,
-                time_date: eventDate,
-                time_source: "app",
-                time_time_end: chosenEndTime,
-                time_time_start: chosenStartTime,
-                "!todo": chosenEvent["!todo"],
-            }
-        }
+        const API_URL_ANDROID = "http://10.0.2.2:80/fetchEventUsers";
+        const API_URL_IOS = "http://10.0.200.102/fetchEventUsers";
+        // const API_URL_IOS = "http://localhost/fetchTimeRecords";
 
-        const filteredData = Object.fromEntries(
-            Object.entries(eventToPost.fieldData)
-                .filter(([_, value]) => value !== "")
-        );
-
-        const payload = {
-            "fieldData": {
-                ...filteredData
-            }
-        }
-
-        const API_URL_ANDROID = "http://10.0.2.2:80/registerTime";
-        const API_URL_IOS = "http://10.0.200.102/registerTime";
-
-        let URL
+        let URL = ""
 
         if (Platform.OS === 'ios') {
             URL = API_URL_IOS
@@ -83,36 +67,24 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
         }
 
         try {
+            const response = await axios.post(URL, requestBody, { headers: { Authorization: `Bearer ${token}` } });
+            const responseBody = response.data.data;
 
-            await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
-
-            const tempId = Math.floor(Math.random() * 1000)
-
-            const updatedEventData = {
-                ...eventToPost,
-                "fieldData": {
-                    ...eventToPost.fieldData,
-                    recordId: tempId
+            const formattedResponse = responseBody.map(item => ({
+                fieldData: {
+                    '!user': item['!user'],
+                    "!ID": item['!ID'],
+                    '!event': item['!event'],
+                    eventuser_done: item.eventuser_done,
+                    recordId: item.recordId
                 }
-            }
+            }));
 
-            if (!isToDoDone) {
-                await setEventUserDone(chosenEvent.user_recordId)
-            } else if (isToDoDone) {
-                await setTodoDone(chosenEvent.todo_recordId)
-            }
+           
 
-
-            if (eventDate === todaysDateUS) {
-                setCurrentDayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]));
-
-            } else if (eventDate === yesterdaysDateUS) {
-                setYesterdayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]))
-            }
-            onClose();
-
+            return formattedResponse
         } catch (e) {
-            console.log(e + ". Failure found in EventCellPopup")
+            console.log(e + " Failure from fetchEventUsers")
         }
     }
 
@@ -144,9 +116,41 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
         }
     }
 
-    const setTodoDone = async (recordId) => {
-        const API_URL_ANDROID = `http://10.0.2.2:80/modifyTodo/${recordId}`;
-        const API_URL_IOS = `http://10.0.200.102/modifyTodo/${recordId}`;
+    const postBookedEvent = async (toDoDone) => {
+
+        const isToDoDone = toDoDone
+
+        const eventToPost = {
+            fieldData: {
+                common_arendenr: "",
+                common_article_no: chosenEvent.articleId || "",
+                common_comment_customer: customerComment,
+                time_employee_id: userName,
+                time_date: eventDate,
+                time_source: "app",
+                time_time_end: chosenEndTime,
+                time_time_start: chosenStartTime,
+                "!todo": chosenEvent["!todo"],
+                "!Project": chosenEvent.projectID
+
+            }
+        }
+
+        const filteredData = Object.fromEntries(
+            Object.entries(eventToPost.fieldData)
+                .filter(([_, value]) => value !== "")
+        );
+
+        const payload = {
+            "fieldData": {
+                ...filteredData
+            }
+        }
+
+       
+
+        const API_URL_ANDROID = "http://10.0.2.2:80/registerTime";
+        const API_URL_IOS = "http://10.0.200.102/registerTime";
 
         let URL
 
@@ -158,18 +162,42 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
 
         try {
 
-            const payload = {
-                fieldData: {
-                    "todo_done": "1"
+            await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+
+          
+
+            const tempId = Math.floor(Math.random() * 1000)
+
+            const updatedEventData = {
+                ...eventToPost,
+                "fieldData": {
+                    ...eventToPost.fieldData,
+                    recordId: tempId
                 }
             }
-            alert("You made it here!")
-            await axios.patch(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
 
-            console.log(recordId)
+            if (toDoDone === true) {
+                await toggleTodoDone()
+            } else {
+                console.log("ToDo not done")
+            }
+
+            if (eventDate === todaysDateUS) {
+                setCurrentDayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]));
+
+            } else if (eventDate === yesterdaysDateUS) {
+                setYesterdayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]))
+            }
+            onClose();
+
         } catch (e) {
-            console.log(e)
+            console.log(e + ". Failure found in EventCellPopup")
         }
+    }
+
+    const toggleTodoDone = async () => {
+        const eventUserRecordId = await fetchEventUserData(chosenEvent.event_ID)
+        await setEventUserDone(eventUserRecordId);
     }
 
     return (
@@ -206,7 +234,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent }) => {
                 <TouchableOpacity onPress={() => postBookedEvent(false)}>
                     <Text style={styles.confirmButton}>OK</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={onClose}>
+                <TouchableOpacity onPress={onCancel}>
                     <Text style={styles.cancelButton}>Cancel</Text>
                 </TouchableOpacity>
             </View>
