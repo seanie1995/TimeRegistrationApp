@@ -21,6 +21,7 @@ import ValueList from "../components/ValueListPicker.jsx"
 import Calendar from "../components/CalendarBig.jsx"
 import EventCellPopup from "../components/EventCellPopup.jsx"
 import ToDoCalendar from "../components/CalenderTodo.jsx"
+import DatePicker from "../components/DatePicker.jsx"
 
 import addCircle from "../assets/images/add-circle.png";
 import { useNavigation } from 'expo-router';
@@ -70,15 +71,10 @@ function AuthConsumer() {
     loadToken();
   }, [])
 
-  // const ToRegPage = () => {
-  //   navigation.navigate("Regga Tid")
-  // }
-
   return (
     <ThemeProvider value={DefaultTheme}>
       {!token ? (
         <LoginPage />
-        // <EventCellPopup/>
       ) : (
         <Stack.Navigator>
           <Stack.Group screenOptions={{ headerStyle: { backgroundColor: '#FFFFFF' }, headerBackTitle: "Tillbaka" }}>
@@ -98,6 +94,7 @@ function AuthConsumer() {
             <Stack.Screen name="ArticleList" component={ArticleList} />
             <Stack.Screen name="EventCellPopup" component={EventCellPopup}/>
             <Stack.Screen name="TodoCalendar" component={ToDoCalendar}/>
+            <Stack.Screen name="DatePicker" component={DatePicker}/>
           </Stack.Group>
         </Stack.Navigator>
       )}

@@ -58,7 +58,8 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
                 const isCommentNull = item?.fieldData.common_comment_customer === ""
                 const chosenItem = item
                 const isChargeable = item?.fieldData.time_chargeable === 1
-                const noArticleNumber = !item?.fieldData["!Project"]
+                const noArticleNumber = !item?.fieldData.common_article_no
+                
 
                 return {
                     title: `${projectName} `,
@@ -85,13 +86,14 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
 
         <GestureHandlerRootView style={styles.mainContainer}>
             <Calendar events={events}
+                hourRowHeight={100}
                 mode="day"
                 hideNowIndicator="true"
                 overlapOffset={100}
                 date={chosenDay}
                 maxHour={17}
                 minHour={8}
-                height={700}
+                height={900}
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}

@@ -1,20 +1,26 @@
-import { Image, StyleSheet, Platform, View, Text, TextInput, TouchableOpacity, Alert, Button } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, TextInput, TouchableOpacity, Alert, Button, Modal } from 'react-native';
 import { useState, useEffect, useContext } from 'react'
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import { AuthProvider, AuthContext } from './Context';
+import DatePicker from "../components/DatePicker"
 
 const Index = ({ navigation }) => {
   const { userName, logout, todaysDateNormal, yesterdaysDateNormal, todaysDateUS, yesterdaysDateUS, setChosenDate } = useContext(AuthContext);
 
   const ToCalendarPage = (dateTitle, chosenDate) => {
     setChosenDate(chosenDate);
-    navigation.navigate("Tider", {dateTitle, chosenDate});
+    navigation.navigate("Tider", { dateTitle, chosenDate });
   }
+
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   return (
     <SafeAreaProvider>
+      <Modal visible={isDatePickerOpen} transparent={true} animationType='slide' >
+        <DatePicker/>
+      </Modal>
       <SafeAreaView style={styles.container}>
 
         {/* LOGO AND "LOGGED IN AS {USERNAME}" BANNER */}
@@ -32,7 +38,7 @@ const Index = ({ navigation }) => {
           <Text style={styles.registerTimeYesterday} onPress={() => ToCalendarPage(yesterdaysDateNormal, yesterdaysDateUS)}> <Text style={{ fontWeight: "bold" }}>Gårdagens</Text> registrering</Text>
         </TouchableOpacity>
 
-        {/* <TouchableOpacity style={styles.väljEttDatum} onPress={() => navigation.navigate("ArticleList")} >
+        {/* <TouchableOpacity style={styles.väljEttDatum} onPress={() => setIsDatePickerOpen(prev => !prev)} >
           <Text>Välj ett datum</Text>
         </TouchableOpacity> */}
 
@@ -104,6 +110,7 @@ const styles = StyleSheet.create({
   },
   väljEttDatum: {
     marginTop: 15,
+    padding: 5
 
   },
 

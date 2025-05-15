@@ -57,16 +57,18 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
         formatEvents();
 
     }, [chosenEvents, isToday]);
+
     return (
         <GestureHandlerRootView style={styles.mainContainer}>
             <Calendar events={events}
+                hourRowHeight={100}
                 mode="day"
                 hideNowIndicator="true"
                 overlapOffset={100}
                 date={chosenDay}
                 maxHour={17}
                 minHour={8}
-                height={700}
+                height={900}
                 headerContainerStyle={{ display: "none" }}
                 verticalScrollEnabled={true}
                 swipeEnabled={false}
@@ -74,6 +76,7 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
+                        
                         backgroundColor: event.isCommentNull ? "#C0C0C0" : "#90c2f9",
                         borderLeftWidth: 5,
                         borderColor: event.isCommentNull ? "#909090" : "#0b52c2",
@@ -93,7 +96,7 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         width: 400,
-        height: 800,
+        height: 900,
         margin: "auto"
     },
     title: {
