@@ -6,7 +6,7 @@ import { Calendar } from 'react-native-big-calendar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AuthContext } from "../app/Context.jsx";
 
-const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
+const CalenderTodo = ({ chosenEvents, isToday, openEventCell }) => {
 
     const [events, setEvents] = useState([]);
 
@@ -61,6 +61,7 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
     return (
         <GestureHandlerRootView style={styles.mainContainer}>
             <Calendar events={events}
+                hourStyle={{fontSize: 12, fontWeight: "bold"}}
                 hourRowHeight={100}
                 mode="day"
                 hideNowIndicator="true"
@@ -76,7 +77,6 @@ const CalenderTodo = ({chosenEvents, isToday, openEventCell}) => {
                 onPressEvent={(event) => openEventCell(event.chosenEvent)}
                 eventCellStyle={(event) => {
                     return {
-                        
                         backgroundColor: event.isCommentNull ? "#C0C0C0" : "#90c2f9",
                         borderLeftWidth: 5,
                         borderColor: event.isCommentNull ? "#909090" : "#0b52c2",

@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../app/Context';
 
-const DatePicker = (onClose) => {
-  const { todaysDateUS } = useContext(AuthContext); // Expected format: MM/DD/YYYY
+const DatePicker = ({ onClose, onConfirm }) => {
+  const { todaysDateUS, chosenDate, setChosenDate, chosenDateNormal, setChosenDateNormal, formatterUS, formatterNormal } = useContext(AuthContext); // Expected format: MM/DD/YYYY
 
   // Parse today's date
   const currentMonth = todaysDateUS.substring(0, 2);
@@ -41,14 +41,28 @@ const DatePicker = (onClose) => {
     return years;
   };
 
+  const getMonthName = (monthNumber) => {
+    const monthNames = [
+      "januari", "februari", "mars", "april", "maj", "juni",
+      "juli", "augusti", "september", "oktober", "november", "december"
+    ];
+    
+
+    return monthNames[monthNumber - 1]
+  }
+
   const handleConfirm = () => {
-    const chosenDate = `${selectedMonth}/${selectedDay}/${selectedYear}`;
-    console.log("Chosen date:", chosenDate);
+    const dateUS = `${selectedMonth}/${selectedDay}/${selectedYear}`;
+    const dateNormal = `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}`;
+
+    onConfirm({dateUS, dateNormal});
+    onClose();
   };
 
   const handleCancel = () => {
     // If you want to close a modal or trigger a parent handler, add props and call onClose()
     console.log("Cancelled");
+    onClose();
   };
 
   return (
@@ -58,7 +72,7 @@ const DatePicker = (onClose) => {
           selectedValue={selectedDay}
           onValueChange={(value) => setSelectedDay(value)}
           style={styles.timeContainer}
-       
+
         >
           {generateDays().map((day) => (
             <Picker.Item key={day} label={day} value={day} />
@@ -111,7 +125,7 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     width: 90,
-    
+
   },
   yearContainer: {
     width: 120

@@ -15,9 +15,11 @@ export const AuthProvider = ({ children }) => {
     const [todaysDateNormal, setTodaysDateNormal] = useState("");
     const [yesterdaysDateNormal, setYesterdaysDateNormal] = useState("");
     const [chosenDate, setChosenDate] = useState("");
+    const [chosenDateNormal, setChosenDateNormal] = useState("")
 
     const [currentDayPosts, setCurrentDayPosts] = useState([]);
     const [yesterdayPosts, setYesterdayPosts] = useState([]);
+
 
     const [currentDayTodos, setCurrentDayTodos] = useState([]);
     const [yesterdayTodos, setYesterdayTodos] = useState([]);
@@ -25,7 +27,8 @@ export const AuthProvider = ({ children }) => {
     const [chosenDayPosts, setChosenDayPosts] = useState([]);
 
     const [currentDayEvents, setCurrentDayEvents] = useState([]);
-    const [yesterdayEvents, setYesterdayEvents] = useState([])
+    const [yesterdayEvents, setYesterdayEvents] = useState([]);
+    const [chosenDayEvents, setChosenDayEvents] = useState([]);
 
     const [selectedStartTime, setSelectedStartTime] = useState();
     const [selectedEndTime, setSelectedEndTime] = useState()
@@ -308,11 +311,12 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider
             value={{
-                logout, login, token, userName, todaysDateUS, yesterdaysDateUS, todaysDateNormal,
-                yesterdaysDateNormal, setChosenDate, chosenDate, currentDayPosts, 
+                logout, login, token, userName, todaysDateUS, yesterdaysDateUS, todaysDateNormal, chosenDayPosts, setChosenDayPosts,
+                yesterdaysDateNormal, setChosenDate, chosenDate, currentDayPosts, formatterNormal, formatterUS,
                 setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, timeSort, selectedStartTime, setSelectedStartTime, selectedEndTime, setSelectedEndTime,
                 timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal, 
-                currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents
+                currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents, chosenDateNormal, setChosenDateNormal,
+                chosenDayEvents, setChosenDayEvents
             }}>
             {children}
         </AuthContext.Provider>

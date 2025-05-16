@@ -5,13 +5,21 @@ import { NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import { AuthProvider, AuthContext } from './Context';
 import DatePicker from "../components/DatePicker"
+import calendarLogo from "../assets/images/Calendar.png"
 
 const Index = ({ navigation }) => {
-  const { userName, logout, todaysDateNormal, yesterdaysDateNormal, todaysDateUS, yesterdaysDateUS, setChosenDate } = useContext(AuthContext);
+  const { userName, logout, todaysDateNormal, yesterdaysDateNormal, todaysDateUS, yesterdaysDateUS, setChosenDate, chosenDate, chosenDateNormal, setChosenDateNormal } = useContext(AuthContext);
 
   const ToCalendarPage = (dateTitle, chosenDate) => {
     setChosenDate(chosenDate);
     navigation.navigate("Tider", { dateTitle, chosenDate });
+  }
+
+  const handleDateConfirm = ({dateUS, dateNormal}) => {
+    setChosenDate(dateUS);
+    setChosenDateNormal(dateNormal)
+    setIsDatePickerOpen(false);
+    ToCalendarPage(dateNormal, dateUS)
   }
 
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
@@ -19,7 +27,11 @@ const Index = ({ navigation }) => {
   return (
     <SafeAreaProvider>
       <Modal visible={isDatePickerOpen} transparent={true} animationType='slide' >
-        <DatePicker/>
+        <DatePicker
+          onClose={() => setIsDatePickerOpen(false)}
+          onConfirm={handleDateConfirm}
+
+        />
       </Modal>
       <SafeAreaView style={styles.container}>
 
@@ -38,9 +50,9 @@ const Index = ({ navigation }) => {
           <Text style={styles.registerTimeYesterday} onPress={() => ToCalendarPage(yesterdaysDateNormal, yesterdaysDateUS)}> <Text style={{ fontWeight: "bold" }}>Gårdagens</Text> registrering</Text>
         </TouchableOpacity>
 
-        {/* <TouchableOpacity style={styles.väljEttDatum} onPress={() => setIsDatePickerOpen(prev => !prev)} >
-          <Text>Välj ett datum</Text>
-        </TouchableOpacity> */}
+        <TouchableOpacity style={styles.väljEttDatumContainer} onPress={() => setIsDatePickerOpen(prev => !prev)} >
+          <Text>Välj ett datum </Text><Image source={calendarLogo}/>
+        </TouchableOpacity>
 
         <TouchableOpacity>
           <Text style={styles.logoutButton} onPress={logout}>Logga Ut</Text>
@@ -102,16 +114,11 @@ const styles = StyleSheet.create({
     color: "#FAFAFF"
   },
   väljEttDatumContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: "red",
-    borderWidth: 1
-  },
-  väljEttDatum: {
     marginTop: 15,
-    padding: 5
+    padding: 5,
 
+    flexDirection: "row"
   },
+
 
 });
