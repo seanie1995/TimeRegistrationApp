@@ -33,31 +33,30 @@ const CalendarPage = () => {
 
     const onEventOk = () => {
         setEventCellPopupOpen(false)
+        fetchData();
+
         toggleReg();
     }
 
     // FETCHES REGISTERED POSTS DATA
-    useFocusEffect(
+    useEffect(
         React.useCallback(() => {
             if (chosenDate === todaysDateUS) {
                 if (currentDayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
-                } else {
-                    console.log("Local Data Used. Src: CalendarPage.jsx");
-                }
+                } 
             } else if (chosenDate === yesterdaysDateUS) {
                 if (yesterdayPosts.length === 0) {
                     console.log("Fetched data from API. Src: CalendarPage.jsx");
                     fetchData();
-                } else {
-                    console.log("Local Data Used. Src: CalendarPage.jsx");
-                }
+                } 
             } else {
                 fetchData();
             }
-        }, [chosenDate, currentDayPosts, yesterdayPosts, currentDayTodos, yesterdayTodos])
+        }, [chosenDate, currentDayPosts, yesterdayPosts, chosenDayPosts])
     );
+
 
     useEffect(() => {
         navigation.setOptions({
@@ -116,8 +115,6 @@ const CalendarPage = () => {
                     common_item_price: item.common_item_price,
                 }
             }));
-
-
 
             const sortedResponse = timeSort(formattedResponse)
             if (chosenDate === todaysDateUS) {
@@ -320,6 +317,7 @@ const CalendarPage = () => {
                     isBookedEvent={isBookedEvent}
                 />
             </Modal>
+            
             <View style={styles.cardListContainer}>
 
                 {chosenDate === todaysDateUS ? (<ScrollView
@@ -378,7 +376,7 @@ const CalendarPage = () => {
                                 isToday={true}
                                 openEventCell={OnOpenEventCell}
                             />
-                        ) : chosenDate === yesterdayEvents ? (
+                        ) : chosenDate === yesterdaysDateUS ? (
                             <Calendar
                                 chosenEvents={yesterdayPosts}
                                 isToday={false}
@@ -440,7 +438,8 @@ const styles = StyleSheet.create({
     timelineTabContainer: {
         flexDirection: "row",
         margin: "auto",
-        marginBottom: 10
+        marginBottom: 10,
+        marginTop: 10
     },
 
 })

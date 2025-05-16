@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from "axios";
 import { StyleSheet, Platform } from "react-native";
 
-
 export const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
@@ -19,7 +18,6 @@ export const AuthProvider = ({ children }) => {
 
     const [currentDayPosts, setCurrentDayPosts] = useState([]);
     const [yesterdayPosts, setYesterdayPosts] = useState([]);
-
 
     const [currentDayTodos, setCurrentDayTodos] = useState([]);
     const [yesterdayTodos, setYesterdayTodos] = useState([]);

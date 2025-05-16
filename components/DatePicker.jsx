@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../app/Context';
 
 const DatePicker = ({ onClose, onConfirm }) => {
   const { todaysDateUS, chosenDate, setChosenDate, chosenDateNormal, setChosenDateNormal, formatterUS, formatterNormal } = useContext(AuthContext); // Expected format: MM/DD/YYYY
+
 
   // Parse today's date
   const currentMonth = todaysDateUS.substring(0, 2);
@@ -41,21 +42,41 @@ const DatePicker = ({ onClose, onConfirm }) => {
     return years;
   };
 
+  const colorScheme = useColorScheme()
+
+  const dynamicStyles = StyleSheet.create({
+    mainContainer: {
+      backgroundColor: colorScheme === "dark" ? '#2C3340' : "#FAFAFF",
+      width: 350,
+      marginTop: 250,
+      height: 350,
+      padding: 10,
+      borderRadius: 10,
+      alignSelf: 'center'
+    },
+    // You can also move other conditional styles here if needed
+  });
+
   const getMonthName = (monthNumber) => {
     const monthNames = [
       "januari", "februari", "mars", "april", "maj", "juni",
       "juli", "augusti", "september", "oktober", "november", "december"
     ];
-    
+
 
     return monthNames[monthNumber - 1]
   }
+
+  const monthNames = [
+    "januari", "februari", "mars", "april", "maj", "juni",
+    "juli", "augusti", "september", "oktober", "november", "december"
+  ];
 
   const handleConfirm = () => {
     const dateUS = `${selectedMonth}/${selectedDay}/${selectedYear}`;
     const dateNormal = `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}`;
 
-    onConfirm({dateUS, dateNormal});
+    onConfirm({ dateUS, dateNormal });
     onClose();
   };
 
@@ -66,7 +87,7 @@ const DatePicker = ({ onClose, onConfirm }) => {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={dynamicStyles.mainContainer} >
       <View style={styles.container}>
         <Picker
           selectedValue={selectedDay}
@@ -110,15 +131,7 @@ const DatePicker = ({ onClose, onConfirm }) => {
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    backgroundColor: '#2C3340',
-    width: 350,
-    marginTop: 250,
-    height: 350,
-    padding: 10,
-    borderRadius: 10,
-    alignSelf: 'center'
-  },
+
   container: {
     flexDirection: "row",
     justifyContent: "center"
@@ -139,7 +152,7 @@ const styles = StyleSheet.create({
   confirmButton: {
     color: '#FAFFAF',
     padding: 10,
-    backgroundColor: "#2C3340",
+    backgroundColor: "#9EA1AA",
     borderRadius: 10
   },
   cancelButton: {
