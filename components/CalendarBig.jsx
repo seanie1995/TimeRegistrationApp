@@ -86,6 +86,7 @@ const CalendarBig = ({ chosenEvents, isToday, openEventCell }) => {
 
         <GestureHandlerRootView style={styles.mainContainer}>
             <Calendar events={events}
+                hourStyle={{fontSize: 12, fontWeight: "bold"}}
                 hourRowHeight={100}
                 mode="day"
                 hideNowIndicator="true"

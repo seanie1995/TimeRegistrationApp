@@ -11,8 +11,8 @@ import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/nativ
 
 const CalendarPage = () => {
 
-    const { userName, token, currentDayPosts, setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort,
-        todaysDateNormal, yesterdaysDateNormal, currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents } = useContext(AuthContext);
+    const { userName, token, currentDayPosts, setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, chosenDayPosts, setChosenDayPosts,
+        todaysDateNormal, yesterdaysDateNormal, currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents, chosenDayEvents, setChosenDayEvents } = useContext(AuthContext);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const route = useRoute();
     const navigation = useNavigation();
@@ -53,6 +53,8 @@ const CalendarPage = () => {
                 } else {
                     console.log("Local Data Used. Src: CalendarPage.jsx");
                 }
+            } else {
+                fetchData();
             }
         }, [chosenDate, currentDayPosts, yesterdayPosts, currentDayTodos, yesterdayTodos])
     );
@@ -115,11 +117,15 @@ const CalendarPage = () => {
                 }
             }));
 
+
+
             const sortedResponse = timeSort(formattedResponse)
             if (chosenDate === todaysDateUS) {
                 setCurrentDayPosts(sortedResponse);
             } else if (chosenDate === yesterdaysDateUS) {
                 setYesterdayPosts(sortedResponse)
+            } else {
+                setChosenDayPosts(sortedResponse)
             }
         } catch (e) {
             console.log(e)
@@ -167,7 +173,7 @@ const CalendarPage = () => {
                 }
             }));
 
-  
+
 
             if (chosenDate === todaysDateUS) {
                 setCurrentDayTodos(formattedResponse);
@@ -253,7 +259,7 @@ const CalendarPage = () => {
                     "!Article": matchingTodo?.fieldData["!Article"] || null
                 };
             });
-            
+
             return finalEventList;
 
         } catch (error) {
@@ -261,23 +267,22 @@ const CalendarPage = () => {
         }
     }
 
+    const fetchAndSetEvents = async () => {
+        const events = await processEventData();
+
+        if (!events) return;
+
+        if (chosenDate === todaysDateUS) {
+            setCurrentDayEvents(events);
+        } else if (chosenDate === yesterdaysDateUS) {
+            setYesterdayEvents(events);
+        } else {
+            setChosenDayEvents(events)
+        }
+    };
+
     useEffect(() => {
-        const fetchAndSetEvents = async () => {
-            const events = await processEventData();
 
-            if (!events) return;
-
-            if (chosenDate === todaysDateUS) {
-                setCurrentDayEvents(events);
-            } else if (chosenDate === yesterdaysDateUS) {
-                try {
-                    setYesterdayEvents(events);
-                } catch (e) {
-                    console.log(e)
-                }
-
-            }
-        };
         fetchAndSetEvents();
 
     }, [chosenDate]);
@@ -286,6 +291,7 @@ const CalendarPage = () => {
     const onRefresh = async () => {
         setIsRefreshing(true);
         await fetchData();  // Fetch data again
+        await fetchAndSetEvents();
         console.log("Data fetched from API. src: CalendarPage.jsx")
         setIsRefreshing(false);  // Stop the refresh indicator
     };
@@ -328,7 +334,7 @@ const CalendarPage = () => {
                         <Text style={styles.container}>Inga Tider</Text>  // Fallback message
                     )}
 
-                </ScrollView>) : (<ScrollView
+                </ScrollView>) : (chosenDate === yesterdaysDateUS) ? (<ScrollView
                     refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
                     style={styles.testBorder}>
 
@@ -339,7 +345,19 @@ const CalendarPage = () => {
                     ) : (
                         <Text style={{ textAlign: "center" }}>Inga Tider</Text>  // Fallback message
                     )}
+                </ScrollView>) : (<ScrollView
+                    refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+                    style={styles.testBorder}>
+
+                    {chosenDayPosts.length > 0 ? (
+                        chosenDayPosts.map((projects, index) => (
+                            <ToDoCard key={index} project={projects} />
+                        ))
+                    ) : (
+                        <Text style={{ textAlign: "center" }}>Inga Tider</Text>  // Fallback message
+                    )}
                 </ScrollView>)}
+
             </View>
             <View style={styles.calendarContainer}>
                 <View style={styles.timelineTabContainer}>
@@ -360,14 +378,18 @@ const CalendarPage = () => {
                                 isToday={true}
                                 openEventCell={OnOpenEventCell}
                             />
-                        ) : chosenDate !== todaysDateUS ? (
+                        ) : chosenDate === yesterdayEvents ? (
                             <Calendar
                                 chosenEvents={yesterdayPosts}
                                 isToday={false}
                                 openEventCell={OnOpenEventCell}
                             />
                         ) : (
-                            <Text>No Events Available</Text>
+                            <Calendar
+                                chosenEvents={chosenDayPosts}
+                                isToday={false}
+                                openEventCell={OnOpenEventCell}
+                            />
                         )}
                     </View>
                 ) :
@@ -377,16 +399,20 @@ const CalendarPage = () => {
                                 chosenEvents={currentDayEvents}
                                 isToday={true}
                                 openEventCell={OnOpenBookedEventCell}
-                             
+
                             />
-                        ) : chosenDate !== todaysDateUS ? (
+                        ) : chosenDate === yesterdaysDateUS ? (
                             <ToDoCalendar
                                 chosenEvents={yesterdayEvents}
                                 isToday={false}
                                 openEventCell={OnOpenBookedEventCell}
                             />
                         ) : (
-                            <Text>No Events Available</Text>
+                            <ToDoCalendar
+                                chosenEvents={chosenDayEvents}
+                                isToday={false}
+                                openEventCell={OnOpenBookedEventCell}
+                            />
                         )}
                     </View>
                 }

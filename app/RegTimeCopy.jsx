@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 const RegTime = () => {
     const route = useRoute();
     const recordId = route?.params?.recordId || null;
-    const { chosenDate, token, yesterdaysDateUS, todaysDateUS, setYesterdayPosts, setCurrentDayPosts, currentDayPosts,
+    const { chosenDate, token, yesterdaysDateUS, todaysDateUS, setYesterdayPosts, setCurrentDayPosts, currentDayPosts,chosenDayPosts, setChosenDayPosts,
         yesterdayPosts, timeSort, projectValueLists, articleValueLists } = useContext(AuthContext);
 
     const navigation = useNavigation();
@@ -267,7 +267,9 @@ const RegTime = () => {
             }
         } else if (recordId !== null && chosenDate === yesterdaysDateUS) {
             searchPost = yesterdayPosts.find(post => post.fieldData.recordId === recordId);
-
+            setPostToModify(searchPost)
+        } else if (recordId !== null) {
+            searchPost = chosenDayPosts.find(post => post.fieldData.recordId === recordId);
             setPostToModify(searchPost)
         }
 
@@ -458,7 +460,6 @@ const RegTime = () => {
             }
 
             alert("Post ändrad");
-            console.log()
             navigation.goBack();
 
         } catch (e) {
@@ -572,8 +573,8 @@ const RegTime = () => {
                             {/* TIME INPUT */}
 
                             <View style={styles.timeContainer}>
-                                <View style={styles.timeInputContainer}>
-                                    <TouchableOpacity onPress={ToggleStartTimePicker}>
+                                <View >
+                                    <TouchableOpacity style={styles.timeInputContainer} onPress={ToggleStartTimePicker}>
                                         <Text
                                             style={styles.timeInput}
                                         >
@@ -582,9 +583,8 @@ const RegTime = () => {
 
                                     </TouchableOpacity>
                                 </View>
-                                <View style={styles.timeInputContainer}>
-
-                                    <TouchableOpacity onPress={ToggleEndTimePicker}>
+                                <View >
+                                    <TouchableOpacity style={styles.timeInputContainer} onPress={ToggleEndTimePicker}>
                                         <Text
                                             style={styles.timeInput}
                                         >
