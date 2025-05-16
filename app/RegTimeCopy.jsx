@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 const RegTime = () => {
     const route = useRoute();
     const recordId = route?.params?.recordId || null;
-    const { chosenDate, token, yesterdaysDateUS, todaysDateUS, setYesterdayPosts, setCurrentDayPosts, currentDayPosts,chosenDayPosts, setChosenDayPosts,
+    const { chosenDate, token, yesterdaysDateUS, todaysDateUS, setYesterdayPosts, setCurrentDayPosts, currentDayPosts, chosenDayPosts, setChosenDayPosts,
         yesterdayPosts, timeSort, projectValueLists, articleValueLists } = useContext(AuthContext);
 
     const navigation = useNavigation();
@@ -37,12 +37,24 @@ const RegTime = () => {
     const [isArticlePickerOpen, setArticlePickerOpen] = useState(false);
     const [isStartTime, setIsStartTime] = useState();
 
-    const ToggleProjectPicker = () => {
-        setIsProjectPickerOpen(true);
-    }
-    const ToggleArticlePicker = () => {
-        setArticlePickerOpen(true);
-    }
+    const [keyboardVisible, setKeyboardVisible] = useState(false)
+
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        // Cleanup listeners on unmount
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
+    
 
     const [isTimePickerOpen, setTimePickerIsOpen] = useState(false);
 
@@ -62,6 +74,14 @@ const RegTime = () => {
         setIsStartTime(false)
         setTimePickerIsOpen(true);
     }
+
+    const ToggleProjectPicker = () => {
+        setIsProjectPickerOpen(true);
+    }
+    const ToggleArticlePicker = () => {
+        setArticlePickerOpen(true);
+    }
+    
     const HandleTimeSelect = (chosenTime) => {
 
         if (recordId) {
@@ -514,7 +534,10 @@ const RegTime = () => {
                     </Modal>
 
                     <ScrollView
-                        contentContainerStyle={{ flexGrow: 1 }}
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            minHeight: keyboardVisible ? 800 : undefined
+                        }}
                         keyboardShouldPersistTaps="handled" // Allows touchable elements to work even when the keyboard is visible
                         scrollEnabled={true}
                     >
@@ -537,6 +560,7 @@ const RegTime = () => {
                                             }
                                         </Text>
                                     </TouchableOpacity>
+
                                 </View>
                                 <Text style={styles.inputResult}>
                                     {!projectNameDisplay ? "" : projectNameDisplay}
@@ -758,7 +782,8 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         marginTop: 10,
-        gap: 10
+        gap: 10,
+        margin: "auto"
         // justifyContent: "center",
         // alignItems: "center",
         // border: 1,
@@ -784,7 +809,7 @@ const styles = StyleSheet.create({
         height: 100,
         borderRadius: 12,
         backgroundColor: "#2C33400D",
-        width: 353,
+        width: 370,
     },
 
     sparaButton: {

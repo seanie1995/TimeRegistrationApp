@@ -6,7 +6,7 @@ import { AuthContext } from "../app/Context.jsx"
 
 const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
 
-    const { userName, token, setCurrentDayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, currentDayPosts } = useContext(AuthContext)
+    const { userName, token, setCurrentDayPosts, setYesterdayPosts, todaysDateUS, yesterdaysDateUS, timeSort, currentDayPosts, chosenDayPosts, setChosenDayPosts } = useContext(AuthContext)
 
     let chosenEvent;
 
@@ -80,8 +80,6 @@ const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
                 }
             }));
 
-           
-
             return formattedResponse
         } catch (e) {
             console.log(e + " Failure from fetchEventUsers")
@@ -117,87 +115,116 @@ const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
     }
 
     const postBookedEvent = async (toDoDone) => {
+        const formattedStartTime = formatChosenTime(chosenStartTime);
+        const formattedEndTime = formatChosenTime(chosenEndTime);
 
-        const isToDoDone = toDoDone
-
-        const eventToPost = {
-            fieldData: {
-                common_arendenr: "",
-                common_article_no: chosenEvent.articleId || "",
-                common_comment_customer: customerComment,
-                time_employee_id: userName,
-                time_date: eventDate,
-                time_source: "app",
-                time_time_end: chosenEndTime,
-                time_time_start: chosenStartTime,
-                "!todo": chosenEvent["!todo"],
-                "!Project": chosenEvent.projectID
-
+        let eventToPost = isBookedEvent
+            ? {
+                fieldData: {
+                    common_arendenr: "",
+                    common_article_no: chosenEvent.articleId || "",
+                    common_comment_customer: customerComment,
+                    time_employee_id: userName,
+                    time_date: eventDate,
+                    time_source: "app",
+                    time_time_end: formattedEndTime,
+                    time_time_start: formattedStartTime,
+                    "!todo": chosenEvent["!todo"],
+                    "!Project": chosenEvent.projectID,
+                },
             }
-        }
+            : {
+                fieldData: {
+                    common_comment_customer: customerComment,
+                    time_time_end: formattedEndTime,
+                    time_time_start: formattedStartTime,
 
+                },
+            };
+
+        const recordId = !isBookedEvent ? chosenEvent.recordId : "";
+
+
+        // Remove empty string values
         const filteredData = Object.fromEntries(
-            Object.entries(eventToPost.fieldData)
-                .filter(([_, value]) => value !== "")
+            Object.entries(eventToPost.fieldData).filter(([_, value]) => value !== "")
         );
 
-        const payload = {
-            "fieldData": {
-                ...filteredData
-            }
-        }
+        const payload = { fieldData: { ...filteredData } };
 
-       
+        // Set API URL based on platform and action
+        const baseAndroidUrl = "http://10.0.2.2:80";
+        const baseIosUrl = "http://10.0.200.102";
 
-        const API_URL_ANDROID = "http://10.0.2.2:80/registerTime";
-        const API_URL_IOS = "http://10.0.200.102/registerTime";
+        const API_URL = Platform.OS === "ios"
+            ? isBookedEvent
+                ? `${baseIosUrl}/registerTime`
+                : `${baseIosUrl}/modifyTime/${recordId}`
+            : isBookedEvent
+                ? `${baseAndroidUrl}/registerTime`
+                : `${baseAndroidUrl}/modifyTime/${recordId}`;
 
-        let URL
-
-        if (Platform.OS === 'ios') {
-            URL = API_URL_IOS
-        } else if (Platform.OS === 'android') {
-            URL = API_URL_ANDROID
-        }
+        // Choose method
+        const axiosMethod = isBookedEvent ? axios.post : axios.patch;
 
         try {
+            await axiosMethod(API_URL, payload, {
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            });
 
-            await axios.post(URL, payload, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+            let updatedEventData
+            if (isBookedEvent) {
+                const tempId = Math.floor(Math.random() * 1000);
+                updatedEventData = {
+                    ...eventToPost,
+                    fieldData: {
+                        ...eventToPost.fieldData,
+                        recordId: tempId,
+                    },
+                };
+            }
 
-          
+            if (toDoDone) {
+                await toggleTodoDone();
+            }
 
-            const tempId = Math.floor(Math.random() * 1000)
-
-            const updatedEventData = {
-                ...eventToPost,
-                "fieldData": {
-                    ...eventToPost.fieldData,
-                    recordId: tempId
+            if (isBookedEvent) {
+                if (eventDate === todaysDateUS) {
+                    setCurrentDayPosts((prevPosts) => timeSort([...prevPosts, updatedEventData]));
+                } else if (eventDate === yesterdaysDateUS) {
+                    setYesterdayPosts((prevPosts) => timeSort([...prevPosts, updatedEventData]));
+                } else {
+                    setChosenDayPosts((prevPosts) => timeSort([...prevPosts, updatedEventData]));
                 }
-            }
+            } 
 
-            if (toDoDone === true) {
-                await toggleTodoDone()
-            } else {
-                console.log("ToDo not done")
-            }
-
-            if (eventDate === todaysDateUS) {
-                setCurrentDayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]));
-
-            } else if (eventDate === yesterdaysDateUS) {
-                setYesterdayPosts(prevPosts => timeSort([...prevPosts, updatedEventData]))
-            }
             onClose();
-
         } catch (e) {
-            console.log(e + ". Failure found in EventCellPopup")
+            console.log(
+                e +
+                `. Failure found in EventCellPopup ${isBookedEvent ? "posting new event" : "modifying event"
+                }`
+            );
         }
-    }
+    };
+
 
     const toggleTodoDone = async () => {
         const eventUserRecordId = await fetchEventUserData(chosenEvent.event_ID)
         await setEventUserDone(eventUserRecordId);
+    }
+
+    const formatChosenTime = (time) => {
+
+        let formattedTime = time;
+
+        if (time.length === 2) {
+            formattedTime += ":00"
+            return formattedTime;
+        }
+
+        return formattedTime.replace(".", ":");
+
     }
 
     return (
@@ -212,6 +239,7 @@ const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
                     onChangeText={setCustomerComment}
                     // value={event.fieldData.time_not_worked}
                     placeholderTextColor="gray"
+                    onFocus={() => setCustomerComment('')}
                 >
                 </TextInput>
                 <View style={styles.timeContainer}>
@@ -220,12 +248,14 @@ const EventCellPopup = ({ event, onClose, isBookedEvent, onCancel }) => {
                         value={chosenStartTime.substring(0, 5)}
                         onChangeText={setChosenStartTime}
                         placeholderTextColor="gray"
+                        onFocus={() => setChosenStartTime('')}
                     />
                     <TextInput
                         style={styles.timeInput}
                         value={chosenEndTime.substring(0, 5)}
                         onChangeText={setChosenEndTime}
                         placeholderTextColor="gray"
+                        onFocus={() => setChosenEndTime('')}
                     />
                 </View>
             </View>

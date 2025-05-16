@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView, useColorScheme } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../app/Context';
 
@@ -36,8 +36,22 @@ const TimePicker = ({ onClose, onSelect }) => {
         onClose();
     };
 
+    const colorScheme = useColorScheme()
+
+    const dynamicStyles = StyleSheet.create({
+        mainContainer: {
+            backgroundColor: colorScheme === "dark" ? '#2C3340' : "#FAFAFF",
+            width: 350,
+            margin: "auto",
+            marginTop: 250,
+            height: 350,
+            padding: 10,
+            borderRadius: 10
+        },  
+      });
+    
     return (
-        <View style={styles.mainContainer}>
+        <View style={dynamicStyles.mainContainer}>
 
             <View style={styles.container}>
                 <Picker
@@ -83,10 +97,6 @@ const TimePicker = ({ onClose, onSelect }) => {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        // marginTop: 250,
-        // backgroundColor: "#FAFAFF",
-        // margin: "auto",
-        // borderRadius: 10,
         backgroundColor: '#2C3340',
         width: 350,
         margin: "auto",
@@ -113,7 +123,7 @@ const styles = StyleSheet.create({
         color: '#FAFFAF', 
         margin: "auto", 
         padding: 10, 
-        backgroundColor: "#2C3340",
+        backgroundColor: "#9EA1AA",
         borderRadius: 10
     },
     cancelButton: {
