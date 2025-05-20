@@ -1,29 +1,27 @@
-import { DarkTheme, DefaultTheme, ThemeProvider, } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import 'react-native-reanimated';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthProvider, AuthContext } from "./Context";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity, Image, StyleSheet, Text } from 'react-native';
+import { AuthContext, AuthProvider } from "./Context";
 
-import LoginPage from "./Login"
-import Index from "./MainScreen.jsx"
-import RegTime from "./RegTimeCopy.jsx"
-import CalendarTime from "./CalendarPage.jsx"
+import CalendarTime from "./CalendarPage.jsx";
+import LoginPage from "./Login";
+import Index from "./MainScreen.jsx";
+import RegTime from "./RegTime.jsx";
 
-import TimePicker from "../components/TimePicker.jsx"
-import ArticleList from "../components/ArticleListPicker.jsx"
-import ValueList from "../components/ValueListPicker.jsx"
-import Calendar from "../components/CalendarBig.jsx"
-import EventCellPopup from "../components/EventCellPopup.jsx"
-import ToDoCalendar from "../components/CalenderTodo.jsx"
-import DatePicker from "../components/DatePicker.jsx"
+import ArticleList from "../components/ArticleListPicker.jsx";
+import Calendar from "../components/CalendarBig.jsx";
+import ToDoCalendar from "../components/CalenderTodo.jsx";
+import DatePicker from "../components/DatePicker.jsx";
+import EventCellPopup from "../components/EventCellPopup.jsx";
+import TimePicker from "../components/TimePicker.jsx";
+import ValueList from "../components/ValueListPicker.jsx";
 
-import addCircle from "../assets/images/add-circle.png";
 import { useNavigation } from 'expo-router';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -82,19 +80,19 @@ function AuthConsumer() {
             <Stack.Screen name="Regga Tid" component={RegTime} options={{ title: "" }} />
             <Stack.Screen name="Tider"
               component={CalendarTime}
-              // options={{
-              //   headerRight: () => (<TouchableOpacity onPress={ToRegPage}><Image style={styles.addCircleImg} source={addCircle} /></TouchableOpacity>)
-              // }} 
-              />
+            // options={{
+            //   headerRight: () => (<TouchableOpacity onPress={ToRegPage}><Image style={styles.addCircleImg} source={addCircle} /></TouchableOpacity>)
+            // }} 
+            />
           </Stack.Group>
           <Stack.Group >
             <Stack.Screen name="TimePicker" component={TimePicker} />
             <Stack.Screen name="ValueList" component={ValueList} />
             <Stack.Screen name="Calendar" component={Calendar} />
             <Stack.Screen name="ArticleList" component={ArticleList} />
-            <Stack.Screen name="EventCellPopup" component={EventCellPopup}/>
-            <Stack.Screen name="TodoCalendar" component={ToDoCalendar}/>
-            <Stack.Screen name="DatePicker" component={DatePicker}/>
+            <Stack.Screen name="EventCellPopup" component={EventCellPopup} />
+            <Stack.Screen name="TodoCalendar" component={ToDoCalendar} />
+            <Stack.Screen name="DatePicker" component={DatePicker} />
           </Stack.Group>
         </Stack.Navigator>
       )}

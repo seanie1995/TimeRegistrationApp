@@ -1,21 +1,17 @@
-import React, { useContext, useState, useEffect, useLayoutEffect } from 'react'
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, Image, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { Image, Keyboard, KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native';
+import Checkmark from "../assets/images/SparaCheck.png";
 import { AuthContext } from './Context.jsx';
-import { useNavigation, useRoute } from '@react-navigation/native'
-import Checkmark from "../assets/images/SparaCheck.png"
 
-import TimePicker from "../components/TimePicker.jsx"
-import ProjectPicker from "../components/ValueListPicker.jsx"
-import ArticlePicker from "../components/ArticleListPicker.jsx"
-import EventCell from "../components/EventCellPopup.jsx"
+import ArticlePicker from "../components/ArticleListPicker.jsx";
+import TimePicker from "../components/TimePicker.jsx";
+import ProjectPicker from "../components/ValueListPicker.jsx";
 
-import { goBack } from 'expo-router/build/global-state/routing.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { ScrollView } from 'react-native-gesture-handler';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 
 const RegTime = () => {
     const route = useRoute();
@@ -54,7 +50,7 @@ const RegTime = () => {
         };
     }, []);
 
-    
+
 
     const [isTimePickerOpen, setTimePickerIsOpen] = useState(false);
 
@@ -81,7 +77,7 @@ const RegTime = () => {
     const ToggleArticlePicker = () => {
         setArticlePickerOpen(true);
     }
-    
+
     const HandleTimeSelect = (chosenTime) => {
 
         if (recordId) {
