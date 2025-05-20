@@ -245,7 +245,7 @@ export const AuthProvider = ({ children }) => {
 
             // const encodedName = btoa(`${username}:${password}`);
 
-            const encodedName = ""
+            const encodedName = "="
 
             const headers = {
                 "Authorization": `Basic ${encodedName}`,
