@@ -1,7 +1,7 @@
-import { createContext, useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
-import { StyleSheet, Platform } from "react-native";
+import { createContext, useEffect, useState } from "react";
+import { Platform, StyleSheet } from "react-native";
 
 export const AuthContext = createContext({});
 
@@ -245,7 +245,7 @@ export const AuthProvider = ({ children }) => {
 
             // const encodedName = btoa(`${username}:${password}`);
 
-            const encodedName = "="
+            const encodedName = ""
 
             const headers = {
                 "Authorization": `Basic ${encodedName}`,
@@ -312,7 +312,7 @@ export const AuthProvider = ({ children }) => {
                 logout, login, token, userName, todaysDateUS, yesterdaysDateUS, todaysDateNormal, chosenDayPosts, setChosenDayPosts,
                 yesterdaysDateNormal, setChosenDate, chosenDate, currentDayPosts, formatterNormal, formatterUS,
                 setCurrentDayPosts, yesterdayPosts, setYesterdayPosts, timeSort, selectedStartTime, setSelectedStartTime, selectedEndTime, setSelectedEndTime,
-                timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal, 
+                timePickerVisible, setTimePickerVisible, isStartTime, setIsStartTime, projectValueList, articleValueList, setUpdateTimeTrigger, formatterNormal,
                 currentDayTodos, setCurrentDayTodos, yesterdayTodos, setYesterdayTodos, currentDayEvents, setCurrentDayEvents, yesterdayEvents, setYesterdayEvents, chosenDateNormal, setChosenDateNormal,
                 chosenDayEvents, setChosenDayEvents
             }}>
