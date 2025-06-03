@@ -1,50 +1,53 @@
-# Welcome to your Expo app 👋
+# 📱 TimeRegistrationApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile proof-of-concept time registration app built with React Native.  
+It connects to a FileMaker database through a lightweight PHP Slim 4 API.
 
-## Get started
+This project was developed as part of my graduation work at Chas Academy and served as a deep dive into fullstack mobile development.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🛠️ Tech Stack
 
-2. Start the app
+- **React Native** – Frontend mobile app
+- **PHP Slim 4** – Middleware REST API
+- **FileMaker** – Database (accessed via Data API)
+- **Axios** – For HTTP requests
+- **Context API & Hooks** – For state management
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 📸 Screenshots
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Home Screen
+![Home Screen](screenshots/Menu.png)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Time Entry
+![Time Entry](screenshots/Form.png)
 
-## Get a fresh project
+### Timeline View
+![Timeline View](screenshots/Calendar.png)
 
-When you're ready, run:
+### New Post Screen
+![New Post](screenshots/CalendarChange.png)
 
-```bash
-npm run reset-project
-```
+### Destkop Version
+![New Post](screenshots/Desktop.png)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Desktop Version 2
+![New Post](screenshots/Desktop2.png)
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🚀 Features
 
-## Join the community
+- Time registration UI optimized for quick daily input
+- Simple and clean interface design
+- Handles simpler user identification, time entries, and activity logging
+- Communicates with FileMaker securely through a backend API
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📁 Project Structure
+
