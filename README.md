@@ -19,17 +19,17 @@ This project was developed as part of my graduation work at Chas Academy and ser
 
 ## 📸 Screenshots
 
-### Home Screen
-![Home Screen](screenshots/Menu.png)
+### 🏠 Home Screen  
+<img src="screenshots/Menu.png" alt="Home Screen" width="400"/>
 
-### Time Entry
-![Time Entry](screenshots/Form.png)
+### ⏱️ Time Entry  
+<img src="screenshots/Form.png" alt="Time Entry" width="400"/>
 
-### Timeline View
-![Timeline View](screenshots/Calendar.png)
+### 📅 Timeline View  
+<img src="screenshots/Calendar.png" alt="Timeline View" width="400"/>
 
-### New Post Screen
-![New Post](screenshots/CalendarChange.png)
+### ➕ New Post Screen  
+<img src="screenshots/CalendarChange.png" alt="New Post" width="400"/>
 
 ### Destkop Version
 ![New Post](screenshots/Desktop.png)
